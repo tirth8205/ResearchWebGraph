@@ -1,0 +1,30 @@
+# FastAPI and server
+fastapi==0.110.0
+uvicorn==0.28.0
+pydantic==2.6.1
+python-dotenv==1.0.1
+httpx==0.26.0
+
+# Vector database
+qdrant-client==1.8.0
+
+# NLP and embeddings
+sentence-transformers==2.5.1
+spacy==3.7.2
+nltk==3.8.1
+
+# PDF processing
+PyPDF2==3.0.1
+pdfminer.six==20221105
+
+# arXiv API
+arxiv==2.1.0
+
+# Graph libraries
+networkx==3.2.1
+pyvis==0.3.2
+
+# Utilities
+python-multipart==0.0.7
+async-timeout==4.0.3
+uuid==1.30
