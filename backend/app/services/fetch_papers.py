@@ -1,28 +1,52 @@
 import arxiv
 import time
 import logging
-from langchain_core.documents import Document
-from typing import List, Optional
+import os
+import asyncio
+from typing import List, Optional, Dict, Any
+from dotenv import load_dotenv
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+load_dotenv()
 logger = logging.getLogger(__name__)
 
-def fetch_papers(query: str, max_docs: int = 5, categories: Optional[List[str]] = None, 
-                date_from: Optional[str] = None, retry_attempts: int = 3) -> List[Document]:
+async def fetch_papers(
+    query: str,
+    max_docs: int = 5,
+    categories: Optional[List[str]] = None,
+    date_from: Optional[str] = None,
+    retry_attempts: int = 3
+) -> List[Dict[str, Any]]:
     """
     Fetch research papers from arXiv based on a query.
     
     Args:
-        query (str): Search query for arXiv
-        max_docs (int): Maximum number of documents to retrieve
-        categories (list): Optional list of arXiv categories to filter by
-        date_from (str): Optional date filter in format YYYY-MM-DD
-        retry_attempts (int): Number of retry attempts if API fails
+        query: Search query for arXiv
+        max_docs: Maximum number of documents to retrieve
+        categories: Optional list of arXiv categories to filter by
+        date_from: Optional date filter in format YYYY-MM-DD
+        retry_attempts: Number of retry attempts if API fails
         
     Returns:
-        list: List of Document objects containing paper information
+        List of dictionaries containing paper information
     """
+    # Run in a separate thread to avoid blocking the event loop
+    return await asyncio.to_thread(
+        _fetch_papers_sync,
+        query,
+        max_docs,
+        categories,
+        date_from,
+        retry_attempts
+    )
+
+def _fetch_papers_sync(
+    query: str,
+    max_docs: int = 5,
+    categories: Optional[List[str]] = None,
+    date_from: Optional[str] = None,
+    retry_attempts: int = 3
+) -> List[Dict[str, Any]]:
+    """Synchronous implementation of fetch_papers."""
     documents = []
     
     # Build more advanced query if filters are provided
@@ -56,26 +80,24 @@ def fetch_papers(query: str, max_docs: int = 5, categories: Optional[List[str]] 
                 logger.warning(f"No papers found for query: '{query}'")
                 return []
             
-            for result in results:
+            for i, result in enumerate(results):
                 # Create metadata with rich information
-                metadata = {
-                    "title": result.title,
-                    "authors": [author.name for author in result.authors],
-                    "published": str(result.published),
-                    "updated": str(result.updated),
-                    "arxiv_id": result.entry_id.split("/")[-1],
-                    "pdf_url": result.pdf_url,
-                    "categories": result.categories,
-                    "comment": result.comment,
-                    "journal_ref": result.journal_ref
+                paper = {
+                    "id": f"arxiv_{result.entry_id.split('/')[-1]}",
+                    "content": result.summary,
+                    "metadata": {
+                        "title": result.title,
+                        "authors": [author.name for author in result.authors],
+                        "published": str(result.published),
+                        "updated": str(result.updated) if result.updated else None,
+                        "arxiv_id": result.entry_id.split("/")[-1],
+                        "pdf_url": result.pdf_url,
+                        "categories": result.categories,
+                        "comment": result.comment,
+                        "journal_ref": result.journal_ref
+                    }
                 }
-                
-                # Create document with summary as content
-                doc = Document(
-                    page_content=result.summary,
-                    metadata=metadata
-                )
-                documents.append(doc)
+                documents.append(paper)
             
             logger.info(f"Successfully fetched {len(documents)} papers")
             return documents

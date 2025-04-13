@@ -1,99 +1,123 @@
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import logging
-from fetch_papers import fetch_papers
-from process_papers import process_papers
-from build_graph import build_knowledge_graph
-from visualize_graph import visualize_graph
-from query_agent import create_agent
+from dotenv import load_dotenv
+import time
+from contextlib import asynccontextmanager
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Import routers
+from app.routers import papers, knowledge_graph, query
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
-def main():
-    """Main function to run ResearchWebGraph."""
-    print("Welcome to ResearchWebGraph!")
-    
-    # Check for API tokens
-    hf_token = os.getenv("HF_TOKEN")
-    if not hf_token:
-        print("WARNING: HF_TOKEN environment variable not set. You'll need to provide this later.")
-    
-    try:
-        # Get user query for papers
-        query = input("Enter a topic to fetch research papers (e.g., 'machine learning'): ")
-        if not query.strip():
-            print("No query provided, using default: 'machine learning'")
-            query = "machine learning"
-        
-        # Fetch papers with error handling
-        print(f"Fetching papers on '{query}'...")
-        try:
-            documents = fetch_papers(query)
-            if not documents:
-                print("No papers found. Please try a different query.")
-                return
-            print(f"Successfully fetched {len(documents)} papers")
-        except Exception as e:
-            print(f"Error fetching papers: {e}")
-            return
-        
-        # Process papers with error handling
-        print("Processing papers...")
-        try:
-            vectorstore = process_papers(documents)
-            if vectorstore is None:
-                print("Error creating vector store. Check your HF_TOKEN or network connection.")
-                return
-            print("Vector store created successfully")
-        except Exception as e:
-            print(f"Error processing papers: {e}")
-            return
-        
-        # Build knowledge graph with error handling
-        print("Building knowledge graph...")
-        try:
-            knowledge_graph = build_knowledge_graph(documents)
-            node_count = knowledge_graph.number_of_nodes()
-            edge_count = knowledge_graph.number_of_edges()
-            print(f"Knowledge graph built with {node_count} nodes and {edge_count} edges")
-            
-            # Visualize graph
-            print("Generating knowledge graph visualization...")
-            vis_path = visualize_graph(knowledge_graph)
-            print(f"Visualization saved to: {vis_path}")
-        except Exception as e:
-            print(f"Error building or visualizing knowledge graph: {e}")
-            knowledge_graph = None
-        
-        # Create agent with error handling
-        print("Creating query agent...")
-        try:
-            agent = create_agent(vectorstore, knowledge_graph)
-            print("Agent created successfully")
-        except Exception as e:
-            print(f"Error creating agent: {e}")
-            return
-        
-        # Query loop
-        print("\nYou can now ask questions about the papers. Type 'exit' to quit.")
-        while True:
-            user_input = input("\nQuestion: ")
-            if user_input.lower() in ["exit", "quit"]:
-                break
-            try:
-                response = agent.invoke({"input": user_input})
-                output = response.get("output", "No response generated")
-                print(f"\nAnswer: {output}")
-            except Exception as e:
-                print(f"Error answering query: {e}")
-        
-        print("Thank you for using ResearchWebGraph!")
-        
-    except KeyboardInterrupt:
-        print("\nOperation canceled by user.")
-    except Exception as e:
-        print(f"Unexpected error: {e}")
+# Load environment variables
+load_dotenv()
 
+# Lifespan context manager for startup/shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for the FastAPI application.
+    Handles startup and shutdown events.
+    """
+    # Startup: Load or initialize any resources needed
+    logger.info("Starting ResearchWebGraph API...")
+    
+    # Check for required environment variables
+    if not os.getenv("GROQ_API_KEY"):
+        logger.warning("GROQ_API_KEY not set. Some features may not work correctly.")
+    
+    # Initialize any connections or resources
+    # This is where you would initialize Qdrant, SentenceTransformers, etc.
+    
+    yield  # Application runs here
+    
+    # Shutdown: Clean up any resources
+    logger.info("Shutting down ResearchWebGraph API...")
+
+# Initialize FastAPI app with metadata and lifespan
+app = FastAPI(
+    title="ResearchWebGraph API",
+    description="API for fetching research papers, building knowledge graphs, and answering queries",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+# Setup CORS for frontend access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For development - restrict in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Request timing middleware
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    """Middleware to track and log request processing time."""
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    
+    # Log slow requests
+    if process_time > 1.0:  # Log requests taking more than 1 second
+        logger.warning(f"Slow request: {request.method} {request.url.path} - {process_time:.3f}s")
+    
+    return response
+
+# Include API routers
+app.include_router(papers.router, prefix="/api/papers", tags=["papers"])
+app.include_router(knowledge_graph.router, prefix="/api/graph", tags=["knowledge graph"])
+app.include_router(query.router, prefix="/api/query", tags=["query"])
+
+@app.get("/")
+async def root():
+    """Root endpoint that shows API information."""
+    return {
+        "message": "ResearchWebGraph API is running",
+        "documentation": "/docs",
+        "version": app.version,
+        "features": [
+            "Research paper retrieval from arXiv",
+            "PDF document processing",
+            "Knowledge graph generation and visualization",
+            "Question answering with Groq LLM"
+        ]
+    }
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring."""
+    # Check any critical services here
+    # For instance, check if Qdrant is accessible
+    
+    return {
+        "status": "healthy",
+        "api_version": app.version,
+        "environment": os.getenv("ENVIRONMENT", "development"),
+        "groq_api_configured": bool(os.getenv("GROQ_API_KEY")),
+    }
+
+# Run the application with Uvicorn if executed directly
 if __name__ == "__main__":
-    main()
+    import uvicorn
+    
+    # Get port from environment or use default
+    port = int(os.getenv("PORT", 8000))
+    
+    # Start Uvicorn server
+    uvicorn.run(
+        "app.main:app", 
+        host="0.0.0.0", 
+        port=port, 
+        reload=True,
+        log_level="info"
+    )

@@ -1,104 +1,479 @@
 import os
 import logging
+import asyncio
+import uuid
+from typing import List, Dict, Any, Optional, Tuple
+from dotenv import load_dotenv
 import numpy as np
-from typing import List, Optional
-from langchain_core.documents import Document
-from langchain_core.embeddings import Embeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+from datetime import datetime
 
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Import vector database and embedding model
+from qdrant_client import QdrantClient, AsyncQdrantClient
+from qdrant_client.http.models import (
+    Distance, VectorParams, PointStruct, Filter, 
+    FieldCondition, MatchValue, Range
+)
+from sentence_transformers import SentenceTransformer
+
+# Import utils for text processing
+from app.utils.nlp_utils import split_text_into_chunks
+
+# Load environment variables
+load_dotenv()
 logger = logging.getLogger(__name__)
 
-def get_embeddings(api_key: Optional[str] = None) -> Embeddings:
-    """Initialize and return the embedding model."""
-    if not api_key:
-        api_key = os.getenv("HF_TOKEN")
-        if not api_key:
-            raise ValueError(
-                "No Hugging Face API token found. Please set the HF_TOKEN environment variable "
-                "or provide the api_key parameter."
-            )
-    
-    try:
-        embeddings = HuggingFaceInferenceAPIEmbeddings(
-            api_key=api_key,
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
-        return embeddings
-    except Exception as e:
-        logger.error(f"Failed to initialize embeddings: {str(e)}")
-        raise
+# Constants
+DEFAULT_CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "1000"))
+DEFAULT_CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
+DEFAULT_COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "research_papers")
+DEFAULT_EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 
-def process_papers(documents: List[Document], api_key: Optional[str] = None, 
-                   chunk_size: int = 1000, chunk_overlap: int = 200) -> Optional[FAISS]:
+# Lazily initialized clients and models
+_async_qdrant_client = None
+_sync_qdrant_client = None
+_embedding_model = None
+
+async def get_async_qdrant_client() -> AsyncQdrantClient:
+    """Get or initialize the async Qdrant client."""
+    global _async_qdrant_client
+    if _async_qdrant_client is None:
+        url = os.getenv("QDRANT_URL", "http://localhost:6333")
+        api_key = os.getenv("QDRANT_API_KEY")
+        
+        logger.info(f"Initializing async Qdrant client with URL: {url}")
+        _async_qdrant_client = AsyncQdrantClient(
+            url=url,
+            api_key=api_key if api_key else None
+        )
+    
+    return _async_qdrant_client
+
+def get_sync_qdrant_client() -> QdrantClient:
+    """Get or initialize the synchronous Qdrant client."""
+    global _sync_qdrant_client
+    if _sync_qdrant_client is None:
+        url = os.getenv("QDRANT_URL", "http://localhost:6333")
+        api_key = os.getenv("QDRANT_API_KEY")
+        
+        logger.info(f"Initializing sync Qdrant client with URL: {url}")
+        _sync_qdrant_client = QdrantClient(
+            url=url,
+            api_key=api_key if api_key else None
+        )
+    
+    return _sync_qdrant_client
+
+def get_embedding_model() -> SentenceTransformer:
+    """Get or initialize the embedding model."""
+    global _embedding_model
+    if _embedding_model is None:
+        model_name = DEFAULT_EMBEDDING_MODEL
+        
+        logger.info(f"Loading SentenceTransformer embedding model: {model_name}")
+        _embedding_model = SentenceTransformer(model_name)
+    
+    return _embedding_model
+
+async def setup_collection(collection_name: str = DEFAULT_COLLECTION_NAME) -> str:
     """
-    Process papers into chunks and create a vector store.
+    Create or get the Qdrant collection for paper embeddings.
     
     Args:
-        documents: List of Document objects containing paper content
-        api_key: Hugging Face API token (optional if set as environment variable)
-        chunk_size: Size of text chunks for processing
-        chunk_overlap: Overlap between chunks
+        collection_name: Name of the collection to create or get
         
     Returns:
-        FAISS vector store or None if processing fails
+        Name of the collection
     """
-    if not documents:
-        logger.warning("No documents provided for processing")
-        return None
+    try:
+        client = await get_async_qdrant_client()
+        
+        # Check if collection exists
+        collections = await client.get_collections()
+        if collection_name not in [c.name for c in collections.collections]:
+            # Get embedding dimension from model
+            model = get_embedding_model()
+            embedding_dim = model.get_sentence_embedding_dimension()
+            
+            # Create the collection with the right vector dimensions
+            await client.create_collection(
+                collection_name=collection_name,
+                vectors_config=VectorParams(
+                    size=embedding_dim,
+                    distance=Distance.COSINE
+                )
+            )
+            
+            # Create necessary payload indexes for efficient filtering
+            await client.create_payload_index(
+                collection_name=collection_name,
+                field_name="paper_id",
+                field_schema="keyword"
+            )
+            
+            await client.create_payload_index(
+                collection_name=collection_name,
+                field_name="chunk_index",
+                field_schema="integer"
+            )
+            
+            await client.create_payload_index(
+                collection_name=collection_name,
+                field_name="metadata.categories",
+                field_schema="keyword"
+            )
+            
+            logger.info(f"Created new collection: {collection_name} with dimension {embedding_dim}")
+        else:
+            logger.info(f"Using existing collection: {collection_name}")
+        
+        return collection_name
+        
+    except Exception as e:
+        logger.error(f"Error setting up Qdrant collection: {str(e)}", exc_info=True)
+        raise
+
+async def process_papers(papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Process papers for vector storage and retrieval.
+    
+    Args:
+        papers: List of paper dictionaries with id, content, and metadata
+        
+    Returns:
+        The processed papers with any additional processing metadata
+    """
+    if not papers:
+        logger.warning("No papers provided for processing")
+        return []
     
     try:
-        # Initialize embeddings
-        embeddings = get_embeddings(api_key)
+        # Setup Qdrant collection
+        collection_name = await setup_collection()
         
-        # Split documents into appropriate chunks for academic papers
-        logger.info(f"Splitting documents with chunk size {chunk_size} and overlap {chunk_overlap}")
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size, 
-            chunk_overlap=chunk_overlap,
-            separators=["\n\n", "\n", ". ", " ", ""]
+        # Get clients and model
+        client = await get_async_qdrant_client()
+        model = get_embedding_model()
+        
+        # Process each paper
+        processed_papers = []
+        for paper in papers:
+            try:
+                paper_id = paper["id"]
+                content = paper["content"]
+                metadata = paper["metadata"]
+                
+                logger.info(f"Processing paper {paper_id}: {metadata.get('title', 'Untitled')}")
+                
+                # Split content into chunks
+                chunks = split_text_into_chunks(
+                    content,
+                    chunk_size=DEFAULT_CHUNK_SIZE,
+                    chunk_overlap=DEFAULT_CHUNK_OVERLAP
+                )
+                
+                logger.info(f"Split paper {paper_id} into {len(chunks)} chunks")
+                
+                # Process chunks in batches for efficiency
+                chunk_batch_size = 10  # How many chunks to process at once
+                for i in range(0, len(chunks), chunk_batch_size):
+                    batch = chunks[i:i+chunk_batch_size]
+                    
+                    # Generate embeddings for the batch
+                    embeddings = model.encode(batch)
+                    
+                    # Prepare points for Qdrant
+                    points = []
+                    for j, (chunk, embedding) in enumerate(zip(batch, embeddings)):
+                        chunk_index = i + j
+                        point_id = f"{paper_id}_chunk_{chunk_index}"
+                        
+                        points.append(PointStruct(
+                            id=point_id,
+                            vector=embedding.tolist(),
+                            payload={
+                                "paper_id": paper_id,
+                                "chunk_index": chunk_index,
+                                "content": chunk,
+                                "metadata": metadata,
+                                "created_at": datetime.now().isoformat()
+                            }
+                        ))
+                    
+                    # Upsert the batch to Qdrant
+                    await client.upsert(
+                        collection_name=collection_name,
+                        points=points
+                    )
+                
+                # Add to processed papers
+                processed_papers.append(paper)
+                logger.info(f"Successfully processed paper {paper_id}")
+                
+            except Exception as e:
+                logger.error(f"Error processing paper {paper.get('id', 'unknown')}: {str(e)}", exc_info=True)
+                # Continue with other papers
+        
+        logger.info(f"Processed {len(processed_papers)} papers")
+        return processed_papers
+        
+    except Exception as e:
+        logger.error(f"Error in paper processing pipeline: {str(e)}", exc_info=True)
+        raise
+
+async def process_pdf_content(text: str, filename: str) -> str:
+    """
+    Process text extracted from a PDF.
+    
+    Args:
+        text: Extracted text content from the PDF
+        filename: Name of the original PDF file
+        
+    Returns:
+        ID of the processed paper
+    """
+    # Generate a unique paper ID
+    paper_id = f"pdf_{uuid.uuid4()}"
+    
+    # Create a paper object
+    paper = {
+        "id": paper_id,
+        "content": text,
+        "metadata": {
+            "title": filename,
+            "authors": ["Unknown"],  # PDF extraction doesn't know authors
+            "published": "Unknown",
+            "pdf_url": None,
+            "source": "pdf_upload"
+        }
+    }
+    
+    # Process the paper
+    await process_papers([paper])
+    
+    return paper_id
+
+async def get_context_for_query(query: str, paper_ids: List[str], top_k: int = 3) -> List[Dict[str, Any]]:
+    """
+    Retrieve relevant context from the vector store based on a query.
+    
+    Args:
+        query: The user's question
+        paper_ids: List of paper IDs to search within
+        top_k: Number of top results to return
+        
+    Returns:
+        List of context chunks with metadata and relevance scores
+    """
+    try:
+        collection_name = DEFAULT_COLLECTION_NAME
+        client = await get_async_qdrant_client()
+        model = get_embedding_model()
+        
+        # Generate embedding for the query
+        query_embedding = model.encode(query).tolist()
+        
+        # Create filter for the specified papers
+        search_filter = Filter(
+            must=[
+                FieldCondition(
+                    key="paper_id",
+                    match=MatchValue(
+                        value=paper_ids
+                    )
+                )
+            ]
         )
-        texts = text_splitter.split_documents(documents)
         
-        # Log processing information
-        logger.info(f"Processing {len(texts)} text chunks from {len(documents)} documents")
-        if texts:
-            logger.debug(f"Sample text: {texts[0].page_content[:100]}...")
-        else:
-            logger.warning("No text chunks generated from documents")
+        # Search for similar chunks
+        search_result = await client.search(
+            collection_name=collection_name,
+            query_vector=query_embedding,
+            limit=top_k,
+            filter=search_filter
+        )
+        
+        # Format the results
+        contexts = []
+        for result in search_result:
+            contexts.append({
+                "content": result.payload["content"],
+                "metadata": result.payload["metadata"],
+                "paper_id": result.payload["paper_id"],
+                "chunk_index": result.payload["chunk_index"],
+                "relevance_score": result.score
+            })
+        
+        logger.info(f"Retrieved {len(contexts)} context chunks for query: '{query}'")
+        return contexts
+        
+    except Exception as e:
+        logger.error(f"Error retrieving context for query: {str(e)}", exc_info=True)
+        raise
+
+async def list_stored_papers(limit: int = 10, offset: int = 0, category: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    List papers stored in the vector database.
+    
+    Args:
+        limit: Maximum number of papers to return
+        offset: Offset for pagination
+        category: Optional category to filter by
+        
+    Returns:
+        List of paper objects
+    """
+    try:
+        collection_name = DEFAULT_COLLECTION_NAME
+        client = await get_async_qdrant_client()
+        
+        # Create filter
+        search_filter = Filter()
+        if category:
+            search_filter.must.append(
+                FieldCondition(
+                    key="metadata.categories",
+                    match=MatchValue(
+                        value=category
+                    )
+                )
+            )
+        
+        # Use scroll to get all chunk IDs with paper_id
+        result = await client.scroll(
+            collection_name=collection_name,
+            scroll_filter=search_filter,
+            limit=1000,  # Get a reasonable number of chunks
+            with_payload=True,
+            with_vectors=False
+        )
+        
+        # Extract unique paper IDs and their metadata
+        paper_map = {}
+        for point in result[0]:
+            paper_id = point.payload["paper_id"]
+            
+            # Only store the first occurrence of each paper (to get complete metadata)
+            if paper_id not in paper_map:
+                paper_map[paper_id] = {
+                    "id": paper_id,
+                    "content": point.payload["content"],  # This will just be one chunk
+                    "metadata": point.payload["metadata"]
+                }
+        
+        # Convert to list and apply pagination
+        papers = list(paper_map.values())
+        paginated_papers = papers[offset:offset+limit]
+        
+        logger.info(f"Listed {len(paginated_papers)} papers (from total of {len(papers)})")
+        return paginated_papers
+        
+    except Exception as e:
+        logger.error(f"Error listing papers: {str(e)}", exc_info=True)
+        raise
+
+async def get_paper_by_id(paper_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Retrieve a paper by ID.
+    
+    Args:
+        paper_id: ID of the paper to retrieve
+        
+    Returns:
+        Paper object or None if not found
+    """
+    try:
+        collection_name = DEFAULT_COLLECTION_NAME
+        client = await get_async_qdrant_client()
+        
+        # Create filter for the paper ID
+        search_filter = Filter(
+            must=[
+                FieldCondition(
+                    key="paper_id",
+                    match=MatchValue(
+                        value=paper_id
+                    )
+                )
+            ]
+        )
+        
+        # Search for chunks with this paper ID
+        result = await client.scroll(
+            collection_name=collection_name,
+            scroll_filter=search_filter,
+            limit=100,  # Get a reasonable number of chunks
+            with_payload=True,
+            with_vectors=False
+        )
+        
+        if not result[0]:
+            logger.warning(f"Paper {paper_id} not found")
             return None
         
-        # Create FAISS vector store directly from texts (simpler and more reliable)
-        logger.info("Creating vector store from documents")
-        try:
-            vectorstore = FAISS.from_documents(texts, embeddings)
-            logger.info(f"Successfully created vector store with {len(texts)} entries")
-            return vectorstore
-        except Exception as e:
-            logger.error(f"Error creating vector store using from_documents: {str(e)}")
-            
-            # Fallback method using manual embedding
-            logger.info("Attempting fallback method with manual embeddings")
-            try:
-                # Get text contents for embedding
-                text_contents = [doc.page_content for doc in texts]
-                metadatas = [doc.metadata for doc in texts]
-                
-                # Create the vector store
-                vectorstore = FAISS.from_texts(
-                    text_contents, 
-                    embeddings, 
-                    metadatas=metadatas
-                )
-                logger.info("Successfully created vector store using fallback method")
-                return vectorstore
-            except Exception as e2:
-                logger.error(f"Fallback method also failed: {str(e2)}")
-                return None
-                
+        # Reconstruct the full paper content from chunks
+        chunks = sorted(
+            result[0], 
+            key=lambda point: point.payload.get("chunk_index", 0)
+        )
+        
+        # Combine chunks into full content
+        full_content = "\n".join([chunk.payload["content"] for chunk in chunks])
+        
+        # Get metadata from the first chunk
+        metadata = chunks[0].payload["metadata"]
+        
+        paper = {
+            "id": paper_id,
+            "content": full_content,
+            "metadata": metadata
+        }
+        
+        logger.info(f"Retrieved paper {paper_id}")
+        return paper
+        
     except Exception as e:
-        logger.error(f"Error in paper processing pipeline: {str(e)}")
-        return None
+        logger.error(f"Error retrieving paper: {str(e)}", exc_info=True)
+        raise
+
+async def delete_paper(paper_id: str) -> bool:
+    """
+    Delete a paper and all its chunks from the vector database.
+    
+    Args:
+        paper_id: ID of the paper to delete
+        
+    Returns:
+        True if successful, False if paper not found
+    """
+    try:
+        collection_name = DEFAULT_COLLECTION_NAME
+        client = await get_async_qdrant_client()
+        
+        # Create filter for the paper ID
+        delete_filter = Filter(
+            must=[
+                FieldCondition(
+                    key="paper_id",
+                    match=MatchValue(
+                        value=paper_id
+                    )
+                )
+            ]
+        )
+        
+        # Delete all points with this paper ID
+        result = await client.delete(
+            collection_name=collection_name,
+            points_selector=delete_filter
+        )
+        
+        if result.status != "completed":
+            logger.warning(f"Delete operation for paper {paper_id} failed")
+            return False
+        
+        logger.info(f"Deleted paper {paper_id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error deleting paper: {str(e)}", exc_info=True)
+        raise
