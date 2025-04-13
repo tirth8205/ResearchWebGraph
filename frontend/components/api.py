@@ -425,7 +425,7 @@ def change_page(page_name: str) -> None:
     if not page_name.startswith("pages/"):
         page_name = f"pages/{page_name}"
     
-    # Use st.experimental_rerun after setting the query parameter
-    st.experimental_set_query_params(page=page_name)
+    # Use the newer st.query_params to set the page parameter
+    st.query_params["page"] = page_name
     time.sleep(0.1)  # Small delay to allow query params to propagate
-    st.experimental_rerun()
+    st.rerun()

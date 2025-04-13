@@ -1,157 +1,176 @@
 # ResearchWebGraph
 
-ResearchWebGraph is an AI-powered research assistant that helps users explore, analyze, and understand academic papers. The application combines advanced AI technologies like knowledge graphs, vector search, and large language models (LLMs) to deliver insights from research papers.
-
----
+**ResearchWebGraph** is an AI-powered research assistant that helps you explore and understand academic papers. It combines advanced technologies like knowledge graphs, vector search, and large language models (LLMs) to provide insights into research topics.
 
 ## Features
 
-### 📚 Paper Search
-- Search for research papers on arXiv using keywords and filters.
-- Upload PDF documents to extract text and analyze their content.
-
-### 🕸️ Knowledge Graph
-- Build interactive knowledge graphs to visualize entities, concepts, and relationships extracted from research papers.
-- Explore connections between entities like people, organizations, and academic terms.
-
-### 🤖 Query Assistant
-- Ask questions about selected papers and receive AI-generated answers with citations.
-- Compare methodologies, summarize findings, and explore relationships between papers.
-
----
+- **Search for Papers**: Retrieve research papers from arXiv based on keywords and filters.
+- **Upload PDFs**: Upload your own research papers or documents for analysis.
+- **Build Knowledge Graphs**: Extract entities and relationships from papers and visualize them as interactive graphs.
+- **AI-Powered Query Assistant**: Ask questions about selected papers and get detailed answers with citations.
 
 ## Technology Stack
 
 ### Backend
-- **FastAPI**: Backend framework for handling API requests.
-- **Qdrant**: Vector database for storing embeddings and performing semantic search.
-- **SentenceTransformers**: For generating embeddings from text.
-- **PyPDF2**: For extracting text from PDF documents.
-- **spaCy & NLTK**: For natural language processing tasks like entity extraction.
+- **FastAPI**: High-performance API framework.
+- **Qdrant**: Vector database for semantic search.
+- **SentenceTransformers**: Embedding model for generating vector representations of text.
+- **PyPDF2 & PDFMiner**: Tools for extracting text and metadata from PDFs.
+- **spaCy & NLTK**: NLP libraries for entity extraction and text processing.
 
 ### Frontend
 - **Streamlit**: Interactive web interface for users.
-- **streamlit-option-menu**: For navigation between pages.
-- **Requests**: For communicating with the backend API.
+- **streamlit-option-menu**: Navigation menu for multi-page apps.
 
 ### LLMs
-- **Groq API**: Access to powerful large language models (e.g., Llama 3) for answering user queries.
-
----
+- **Groq API**: Access to high-performance large language models like `llama-3.1-8b-instant` and `llama-3.3-70b-versatile`.
 
 ## Installation
 
 ### Prerequisites
-1. Python 3.9 or higher installed on your system.
-2. Docker installed (for running Qdrant as a vector database).
-3. A valid Groq API key for accessing LLMs.
-
----
+1. Python 3.9 or higher
+2. Docker (for running Qdrant locally)
+3. Node.js (optional, if building additional frontend components)
 
 ### Backend Setup
-
-1. Navigate to the `backend` directory:
+1. Clone the repository:
    ```
-   cd backend
+   git clone https://github.com/yourusername/ResearchWebGraph.git
+   cd ResearchWebGraph/backend
    ```
 
-2. Install required dependencies:
+2. Create a virtual environment:
+   ```
+   python -m venv researchwebgraph_env
+   source researchwebgraph_env/bin/activate  # On Windows, use researchwebgraph_env\Scripts\activate
+   ```
+
+3. Install dependencies:
    ```
    pip install -r requirements.txt
    ```
 
-3. Start the Qdrant vector database:
+4. Start Qdrant (if not already running):
    ```
-   docker run -p 6333:6333 qdrant/qdrant
-   ```
-
-4. Run the FastAPI backend:
-   ```
-   uvicorn app.main:app --reload
+   docker run -p 6333:6333 -v $(pwd)/qdrant_storage:/qdrant/storage qdrant/qdrant
    ```
 
----
+5. Set up environment variables in `backend/.env`:
+   ```
+   GROQ_API_KEY=your-groq-api-key
+   QDRANT_URL=http://localhost:6333
+   DEFAULT_LLM_MODEL=llama-3.1-8b-instant
+   ```
+
+6. Run the backend server:
+   ```
+   uvicorn app.main:app --reload --port 8000
+   ```
 
 ### Frontend Setup
-
-1. Navigate to the `frontend` directory:
+1. Navigate to the frontend directory:
    ```
-   cd frontend
+   cd ../frontend
    ```
 
-2. Install required dependencies:
+2. Install dependencies:
    ```
    pip install -r requirements.txt
    ```
 
-3. Start the Streamlit application:
+3. Set up environment variables in `frontend/.env`:
+   ```
+   BACKEND_URL=http://localhost:8000
+   ```
+
+4. Run the frontend application:
    ```
    streamlit run app.py
    ```
 
----
-
 ## Usage
 
-1. Open the Streamlit frontend in your browser (e.g., `http://localhost:8501`).
-2. Configure your Groq API key in the sidebar.
-3. Use the "Research Papers" tab to search for papers or upload PDF documents.
-4. Select papers to analyze and build a knowledge graph in the "Knowledge Graph" tab.
-5. Use the "Query Assistant" tab to ask questions about your selected papers.
+### Step 1: Search for Papers or Upload PDFs
+1. Go to the "Research Papers" tab.
+2. Search for papers on arXiv using keywords or upload your own PDF documents.
 
----
+### Step 2: Build a Knowledge Graph
+1. Select papers from the search results or uploaded PDFs.
+2. Go to the "Knowledge Graph" tab and click "Build Knowledge Graph."
+3. Explore the interactive graph to discover entities and relationships.
+
+### Step 3: Ask Questions About the Papers
+1. Go to the "Query Assistant" tab.
+2. Ask specific questions about the selected papers (e.g., "What are the main findings?").
+3. View detailed AI-generated answers with citations to source papers.
+
+## Example Questions for Query Assistant
+
+1. "What are the main findings across these papers?"
+2. "Explain the methodology used in paper X."
+3. "How do these papers relate to each other?"
+4. "What are the limitations mentioned in these studies?"
 
 ## Project Structure
 
 ```
 ResearchWebGraph/
 ├── backend/
-│   ├── app/
-│   │   ├── routers/           # API endpoints (papers, query, graph)
-│   │   ├── services/          # Core business logic (processing, graph building)
-│   │   ├── utils/             # Helper utilities (PDF processing, NLP)
-│   │   ├── models/            # Pydantic schemas for request/response validation
-│   │   └── main.py            # FastAPI entry point
-│   ├── requirements.txt       # Backend dependencies
-│   └── .env                   # Environment variables for backend configuration
+│   ├── app/
+│   │   ├── routers/          # API routes (papers, knowledge graph, query)
+│   │   ├── services/         # Core logic (fetching, processing, graph building)
+│   │   ├── utils/            # Utility functions (PDF processing, NLP)
+│   │   ├── models/           # Pydantic schemas for request/response validation
+│   │   └── main.py           # FastAPI entry point
+│   ├── requirements.txt      # Backend dependencies
+│   └── .env                  # Backend environment variables
 ├── frontend/
-│   ├── app.py                 # Streamlit entry point
-│   ├── components/            # Reusable UI components (API client, sidebar)
-│   ├── pages/                 # Multi-page Streamlit app (papers, graph, assistant)
-│   ├── requirements.txt       # Frontend dependencies
-│   └── .env                   # Environment variables for frontend configuration
-└── README.md                  # Project overview and setup instructions
+│   ├── app.py                # Streamlit entry point for frontend UI
+│   ├── pages/                # Multi-page Streamlit app (Papers, Graphs, Assistant)
+│   ├── components/           # Reusable UI components (API client, sidebar)
+│   ├── requirements.txt      # Frontend dependencies
+│   └── .env                  # Frontend environment variables
+└── README.md                 # Project documentation
 ```
 
----
+## Deployment
 
-## Environment Variables
+### Deploying Backend with Docker Compose (Optional)
+Create a `docker-compose.yml` file:
 
-### Backend (.env)
 ```
-GROQ_API_KEY=your-groq-api-key-here
-QDRANT_URL=http://localhost:6333
-QDRANT_COLLECTION_NAME=research_papers
-EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
+version: '3'
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.x.x  # Replace with latest version tag if needed
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+
+  backend:
+    build:
+      context: ./backend/
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+
 ```
 
-### Frontend (.env)
+Run the deployment:
+
 ```
-BACKEND_URL=http://localhost:8000
-GROQ_API_KEY=your-groq-api-key-here
+docker-compose up --build -d
 ```
 
----
+### Deploying Frontend on Streamlit Cloud or Heroku (Optional)
+You can deploy the Streamlit frontend on platforms like Streamlit Cloud or Heroku by configuring your `frontend/.env` file with the production backend URL.
 
 ## Contributing
 
 Contributions are welcome! Please fork this repository and submit a pull request with your changes.
 
----
-
 ## License
 
-This project is licensed under the MIT License. See `LICENSE` for more details.
-
+This project is licensed under the MIT License.
