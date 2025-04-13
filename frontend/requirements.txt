@@ -1,19 +1,16 @@
 # Streamlit and UI components
-streamlit==1.36.0
+streamlit==1.25.0
 streamlit-option-menu==0.3.6
 
-# Requests for API communication
+# HTTP requests
 requests==2.31.0
 
-# Environment variable management
+# Utilities
 python-dotenv==1.0.1
-
-# Data manipulation and visualization
 pandas==2.2.1
+
+# Visualization libraries
 matplotlib==3.8.3
 
-# HTML rendering for Streamlit components
-beautifulsoup4==4.12.2
-
-# Optional dependencies for advanced features (if needed)
-numpy==1.25.2
+# Optional components for advanced visualizations (if needed)
+plotly==5.15.0
