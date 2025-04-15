@@ -49,10 +49,18 @@ with tab1:
                 min_value=1,
                 max_value=20,
                 value=5,
-                help="Maximum number of papers to retrieve"
+                help="Maximum number of papers to retrieve per source"
             )
         
         with col2:
+            # Source selection
+            sources = st.multiselect(
+                "Paper Sources",
+                options=["arxiv", "semantic_scholar"],
+                default=["arxiv"],
+                help="Select which paper sources to search"
+            )
+            
             # Show selected categories if set in filters
             categories = st.session_state.get("search_categories", None)
             date_from = st.session_state.get("search_date_from", None)
@@ -71,7 +79,8 @@ with tab1:
             query=query,
             max_papers=max_papers,
             categories=st.session_state.get("search_categories"),
-            date_from=st.session_state.get("search_date_from")
+            date_from=st.session_state.get("search_date_from"),
+            sources=sources
         )
         
         if papers:
@@ -170,6 +179,7 @@ if "papers" in st.session_state and st.session_state.papers:
                 # Paper metadata
                 st.markdown(f"**Authors**: {', '.join(paper['metadata']['authors'])}")
                 st.markdown(f"**Published**: {paper['metadata']['published']}")
+                st.markdown(f"**Source**: {paper['metadata'].get('source', 'Unknown')}")
                 
                 if paper['metadata'].get('categories'):
                     # Format categories with highlighting for CS categories
@@ -196,6 +206,10 @@ if "papers" in st.session_state and st.session_state.papers:
                 if paper['metadata'].get('pdf_url'):
                     pdf_url = paper['metadata']['pdf_url']
                     st.markdown(f"**PDF**: [Download Paper]({pdf_url})")
+                
+                if paper['metadata'].get('url'):
+                    url = paper['metadata']['url']
+                    st.markdown(f"**URL**: [View Paper]({url})")
             
             with col2:
                 # Determine if paper is already selected
@@ -207,7 +221,7 @@ if "papers" in st.session_state and st.session_state.papers:
                     if st.button("✓ Selected", key=f"selected_{paper_id}"):
                         # Remove from selected papers
                         st.session_state.selected_papers = [p for p in st.session_state.selected_papers if p['id'] != paper_id]
-                        st.experimental_rerun()
+                        st.rerun()
                 else:
                     if st.button("+ Select", key=f"select_{paper_id}"):
                         # Add to selected papers
@@ -215,7 +229,7 @@ if "papers" in st.session_state and st.session_state.papers:
                             st.session_state.selected_papers = []
                         
                         st.session_state.selected_papers.append(paper)
-                        st.experimental_rerun()
+                        st.rerun()
     
     # Actions after paper selection
     if st.session_state.get("selected_papers", []):

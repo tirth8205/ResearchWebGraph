@@ -17,6 +17,14 @@ def setup_api_keys():
             help="Required for LLM access. Get one at https://console.groq.com/"
         )
         
+        # Add Semantic Scholar API Key input
+        semantic_scholar_api_key = st.text_input(
+            "Semantic Scholar API Key (Optional)",
+            type="password",
+            value=os.getenv("SEMANTIC_SCHOLAR_API_KEY", ""),
+            help="Optional: For higher rate limits with Semantic Scholar API"
+        )
+        
         # Backend URL input
         backend_url = st.text_input(
             "Backend URL",
@@ -30,6 +38,10 @@ def setup_api_keys():
                 # Update environment variables (for current session)
                 os.environ["GROQ_API_KEY"] = groq_api_key
                 os.environ["BACKEND_URL"] = backend_url
+                
+                # Save Semantic Scholar API key if provided
+                if semantic_scholar_api_key:
+                    os.environ["SEMANTIC_SCHOLAR_API_KEY"] = semantic_scholar_api_key
                 
                 # Save to session state
                 st.session_state.api_keys_set = True
@@ -116,7 +128,29 @@ def display_selected_papers(papers: List[Dict[str, Any]]):
                 st.session_state.selected_papers = []
                 st.rerun()
 
-# ADD THESE MISSING FUNCTIONS
+def show_app_info():
+    """Display application information in the sidebar."""
+    with st.sidebar.expander("About ResearchWebGraph", expanded=False):
+        st.markdown("""
+        **ResearchWebGraph** is an AI-powered research assistant that helps you explore and understand academic papers.
+        
+        **Features:**
+        - Search and analyze research papers
+        - Build interactive knowledge graphs
+        - Get AI-generated answers to questions
+        
+        **Technologies:**
+        - Backend: FastAPI, Qdrant, SentenceTransformers
+        - Frontend: Streamlit
+        - NLP: NLTK, spaCy
+        - LLM: Groq-powered language models
+        
+        **Version:** 1.0.0
+        """)
+        
+        # Add link to documentation or GitHub repository
+        st.markdown("[Documentation](https://github.com/yourusername/ResearchWebGraph)")
+
 def show_paper_filters():
     """Show filters for paper search in the sidebar."""
     with st.sidebar.expander("Search Filters", expanded=False):
