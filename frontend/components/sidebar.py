@@ -116,29 +116,7 @@ def display_selected_papers(papers: List[Dict[str, Any]]):
                 st.session_state.selected_papers = []
                 st.rerun()
 
-def show_app_info():
-    """Display application information in the sidebar."""
-    with st.sidebar.expander("About ResearchWebGraph", expanded=False):
-        st.markdown("""
-        **ResearchWebGraph** is an AI-powered research assistant that helps you explore and understand academic papers.
-        
-        **Features:**
-        - Search and analyze research papers
-        - Build interactive knowledge graphs
-        - Get AI-generated answers to questions
-        
-        **Technologies:**
-        - Backend: FastAPI, Qdrant, SentenceTransformers
-        - Frontend: Streamlit
-        - NLP: NLTK, spaCy
-        - LLM: Groq-powered language models
-        
-        **Version:** 1.0.0
-        """)
-        
-        # Add link to documentation or GitHub repository
-        st.markdown("[Documentation](https://github.com/yourusername/ResearchWebGraph)")
-
+# ADD THESE MISSING FUNCTIONS
 def show_paper_filters():
     """Show filters for paper search in the sidebar."""
     with st.sidebar.expander("Search Filters", expanded=False):
