@@ -1,81 +1,85 @@
-from pydantic import BaseModel, Field, HttpUrl
-from typing import List, Dict, Optional, Any, Union
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
 from datetime import datetime
+from uuid import UUID
 
 class PaperRequest(BaseModel):
-    """Request model for searching papers."""
-    query: str = Field(..., description="Research topic to search for")
-    max_papers: int = Field(5, description="Maximum number of papers to fetch")
-    categories: Optional[List[str]] = Field(None, description="Categories to filter by")
-    date_from: Optional[str] = Field(None, description="Date to filter from (YYYY-MM-DD)")
-
-class PaperMetadata(BaseModel):
-    """Metadata for a research paper."""
-    title: str
-    authors: List[str]
-    published: str
-    updated: Optional[str] = None
-    arxiv_id: Optional[str] = None
-    pdf_url: Optional[str] = None
+    query: str
+    max_papers: int = 5
     categories: Optional[List[str]] = None
-    comment: Optional[str] = None
-    journal_ref: Optional[str] = None
-
-class Paper(BaseModel):
-    """Model representing a research paper."""
-    id: str
-    content: str
-    metadata: PaperMetadata
+    date_from: Optional[str] = None
+    sources: Optional[List[str]] = None  # New field for specifying sources
 
 class PaperResponse(BaseModel):
-    """Response model containing multiple papers."""
-    papers: List[Paper]
+    papers: List[Dict[str, Any]]
     count: int
+    task_id: Optional[str] = None
 
 class GraphNode(BaseModel):
-    """Model representing a node in the knowledge graph."""
     id: str
     label: str
     type: str
     metadata: Optional[Dict[str, Any]] = None
 
 class GraphEdge(BaseModel):
-    """Model representing an edge in the knowledge graph."""
     source: str
     target: str
     label: str
     weight: float = 1.0
 
 class KnowledgeGraph(BaseModel):
-    """Model representing the entire knowledge graph."""
     nodes: List[GraphNode]
     edges: List[GraphEdge]
+    id: Optional[str] = None
+    created_at: Optional[str] = None
+
+class GraphRequest(BaseModel):
+    paper_ids: List[str]
+
+class GraphResponse(BaseModel):
+    graph: KnowledgeGraph
+    paper_count: int
+    node_count: int
+    edge_count: int
+
+class VisualizationRequest(BaseModel):
+    graph_id: str
+    title: str = "Research Knowledge Graph"
+    height: str = "800px"
+    width: str = "100%"
+    node_size_factor: int = 10
+    max_nodes: int = 300
+    custom_colors: Optional[Dict[str, str]] = None
+
+class VisualizationResponse(BaseModel):
+    html_content: str
+    graph_id: str
+    title: str
 
 class QueryRequest(BaseModel):
-    """Request model for querying the papers."""
     query: str
     papers_ids: List[str]
 
 class QueryResponse(BaseModel):
-    """Response model for a query answer."""
     answer: str
-    sources: List[Dict[str, Any]]
+    sources: List[Dict[str, Any]] = []
 
-class PDFUploadResponse(BaseModel):
-    """Response model for PDF upload."""
-    paper_id: str
-    filename: str
-    success: bool
-    message: Optional[str] = None
+class ConversationRequest(BaseModel):
+    paper_ids: List[str]
 
-class GraphVisualizationRequest(BaseModel):
-    """Request model for graph visualization."""
-    graph_id: str
-    title: Optional[str] = "Research Knowledge Graph"
-    height: Optional[str] = "800px"
-    width: Optional[str] = "100%"
-    
-class GraphVisualizationResponse(BaseModel):
-    """Response model for graph visualization."""
-    html_content: str
-    graph_id: str
+class ConversationResponse(BaseModel):
+    conversation_id: str
+    message: str = "Conversation created"
+
+class MessageRequest(BaseModel):
+    message: str
+
+class MessageResponse(BaseModel):
+    message: str
+    sources: List[Dict[str, Any]] = []
+
+class HealthResponse(BaseModel):
+    status: str = "healthy"
+    api_version: str = "1.0.0"
+    environment: str = "development"
+    groq_api_configured: bool

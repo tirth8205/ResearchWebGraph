@@ -1,21 +1,25 @@
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File, Query
-from typing import List, Optional, Dict, Any
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Query, Path, Body, File, UploadFile, Depends, status
+from typing import List, Dict, Any, Optional
 import logging
-import os
 from datetime import datetime
+import os
+import asyncio
+import uuid
+import json
+import time
 
-# Import models and services
-from app.models.schemas import PaperRequest, PaperResponse, Paper, PDFUploadResponse
+from app.models.schemas import PaperRequest, PaperResponse
 from app.services.fetch_papers import fetch_papers
 from app.services.process_papers import process_papers, process_pdf_content
+from app.utils.pdf_utils import extract_text_from_pdf, is_valid_pdf
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Create API router
+# Create router
 router = APIRouter()
 
-# Background task tracking
+# Track background processing tasks
 active_tasks = {}
 
 @router.post("/fetch", response_model=PaperResponse)
@@ -26,18 +30,19 @@ async def get_papers(
     """
     Fetch research papers based on a query and process them for the knowledge graph.
     
-    This endpoint searches for papers on arXiv based on the provided query and optional
+    This endpoint searches for papers on various sources based on the provided query and optional
     filters, then processes them for use with the knowledge graph and vector store.
     """
     try:
         logger.info(f"Fetching papers with query: '{request.query}'")
         
-        # Fetch papers from arXiv
+        # Fetch papers from sources
         papers = await fetch_papers(
             query=request.query,
             max_docs=request.max_papers,
             categories=request.categories,
-            date_from=request.date_from
+            date_from=request.date_from,
+            sources=request.sources
         )
         
         if not papers:
@@ -54,158 +59,137 @@ async def get_papers(
             "started_at": datetime.now().isoformat()
         }
         
-        # Process papers asynchronously
-        processed_papers = await process_papers(papers)
+        # Add background task for processing
+        background_tasks.add_task(
+            process_papers, 
+            papers
+        )
         
-        # Update task status
-        active_tasks[task_id]["status"] = "completed"
-        active_tasks[task_id]["completed_at"] = datetime.now().isoformat()
-        
-        logger.info(f"Successfully fetched and processed {len(processed_papers)} papers")
+        logger.info(f"Started background task {task_id} to process {len(papers)} papers")
         
         return PaperResponse(
-            papers=processed_papers,
-            count=len(processed_papers)
+            papers=papers,
+            count=len(papers),
+            task_id=task_id
         )
     
     except Exception as e:
-        logger.error(f"Error fetching papers: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error fetching papers: {str(e)}")
+        logger.error(f"Error in get_papers: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/status/{task_id}")
-async def get_processing_status(task_id: str):
+@router.post("/upload-pdf", status_code=status.HTTP_200_OK)
+async def upload_pdf(
+    file: UploadFile = File(...),
+    background_tasks: BackgroundTasks = BackgroundTasks()
+):
     """
-    Check the status of a paper processing job.
+    Upload and process a PDF file.
     
-    Returns the current status of a background processing task.
+    Extracts text from the PDF and processes it for use with the knowledge graph.
+    Returns a paper ID that can be used to reference the processed PDF.
+    """
+    try:
+        logger.info(f"Processing uploaded PDF: {file.filename}")
+        
+        # Check file size
+        max_size_mb = int(os.getenv("MAX_PDF_SIZE_MB", "50"))
+        content = await file.read()
+        file_size_mb = len(content) / (1024 * 1024)
+        
+        if file_size_mb > max_size_mb:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"File too large. Maximum size is {max_size_mb}MB."
+            )
+        
+        # Validate PDF
+        is_valid, error_msg = await is_valid_pdf(content)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=f"Invalid PDF: {error_msg}")
+        
+        # Extract text from PDF
+        text = await extract_text_from_pdf(content)
+        
+        if not text or len(text.strip()) < 100:
+            raise HTTPException(
+                status_code=400, 
+                detail="Could not extract sufficient text from PDF. The file may be corrupted or protected."
+            )
+        
+        # Process PDF content
+        paper_id = await process_pdf_content(text, file.filename)
+        
+        return {"paper_id": paper_id, "message": "PDF processed successfully"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing PDF: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error processing PDF: {str(e)}")
+
+@router.get("/{paper_id}", status_code=status.HTTP_200_OK)
+async def get_paper(paper_id: str = Path(..., description="ID of the paper to retrieve")):
+    """
+    Get a paper by ID.
+    
+    Retrieves a paper from the vector store by its unique ID.
+    Returns the paper metadata and content.
+    """
+    try:
+        logger.info(f"Retrieving paper: {paper_id}")
+        
+        # Import the function to avoid circular imports
+        from app.services.process_papers import get_paper_by_id
+        
+        # Get the paper from the vector store
+        paper = await get_paper_by_id(paper_id)
+        
+        if not paper:
+            raise HTTPException(status_code=404, detail=f"Paper with ID {paper_id} not found")
+        
+        return paper
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving paper: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error retrieving paper: {str(e)}")
+
+@router.get("/task/{task_id}", status_code=status.HTTP_200_OK)
+async def get_task_status(task_id: str = Path(..., description="ID of the task to check")):
+    """
+    Get the status of a background task.
+    
+    Returns the current status of a paper processing task.
     """
     if task_id not in active_tasks:
         raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
     
     return active_tasks[task_id]
 
-@router.post("/upload-pdf", response_model=PDFUploadResponse)
-async def upload_pdf(
-    file: UploadFile = File(...),
-    background_tasks: BackgroundTasks = None
-):
+@router.delete("/{paper_id}", status_code=status.HTTP_200_OK)
+async def delete_paper(paper_id: str = Path(..., description="ID of the paper to delete")):
     """
-    Upload a PDF file to extract text and add to the knowledge base.
+    Delete a paper by ID.
     
-    Processes a PDF document, extracts its text, and adds it to the vector store
-    for later querying and knowledge graph generation.
+    Removes a paper and all its associated data from the vector store.
     """
     try:
-        if not file.filename.lower().endswith('.pdf'):
-            raise HTTPException(status_code=400, detail="File must be a PDF")
+        logger.info(f"Deleting paper: {paper_id}")
         
-        logger.info(f"Processing PDF: {file.filename}")
-        
-        # Read the file content
-        file_content = await file.read()
-        
-        # Extract text from PDF
-        from app.utils.pdf_utils import extract_text_from_pdf
-        text = await extract_text_from_pdf(file_content)
-        
-        if not text or len(text.strip()) < 100:  # Arbitrary minimum length
-            raise HTTPException(status_code=400, detail="Could not extract meaningful text from PDF")
-        
-        # Process the PDF content
-        paper_id = await process_pdf_content(text, file.filename)
-        
-        logger.info(f"Successfully processed PDF: {file.filename}, assigned ID: {paper_id}")
-        
-        return PDFUploadResponse(
-            paper_id=paper_id,
-            filename=file.filename,
-            success=True,
-            message="PDF processed successfully"
-        )
-    
-    except HTTPException:
-        # Re-raise HTTP exceptions
-        raise
-    
-    except Exception as e:
-        logger.error(f"Error processing PDF: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error processing PDF: {str(e)}")
-
-@router.get("/list", response_model=PaperResponse)
-async def list_papers(
-    limit: int = Query(10, ge=1, le=100),
-    offset: int = Query(0, ge=0),
-    category: Optional[str] = None
-):
-    """
-    List processed papers with optional filtering.
-    
-    Retrieves papers that have been processed and stored in the system.
-    """
-    try:
-        # Implement paper retrieval from your storage (Qdrant)
-        # This is a placeholder implementation
-        from app.services.process_papers import list_stored_papers
-        
-        papers = await list_stored_papers(limit, offset, category)
-        
-        return PaperResponse(
-            papers=papers,
-            count=len(papers)
-        )
-    
-    except Exception as e:
-        logger.error(f"Error listing papers: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error listing papers: {str(e)}")
-
-@router.get("/{paper_id}", response_model=Paper)
-async def get_paper(paper_id: str):
-    """
-    Retrieve a specific paper by ID.
-    
-    Gets the complete information for a single paper.
-    """
-    try:
-        # Implement retrieval of a single paper
-        from app.services.process_papers import get_paper_by_id
-        
-        paper = await get_paper_by_id(paper_id)
-        
-        if not paper:
-            raise HTTPException(status_code=404, detail=f"Paper {paper_id} not found")
-        
-        return paper
-    
-    except HTTPException:
-        # Re-raise HTTP exceptions
-        raise
-    
-    except Exception as e:
-        logger.error(f"Error retrieving paper: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error retrieving paper: {str(e)}")
-
-@router.delete("/{paper_id}")
-async def delete_paper(paper_id: str):
-    """
-    Delete a paper from the system.
-    
-    Removes a paper and its associated data from the vector store and knowledge graph.
-    """
-    try:
-        # Implement paper deletion
+        # Import the function to avoid circular imports
         from app.services.process_papers import delete_paper
         
+        # Delete the paper from the vector store
         success = await delete_paper(paper_id)
         
         if not success:
-            raise HTTPException(status_code=404, detail=f"Paper {paper_id} not found")
+            raise HTTPException(status_code=404, detail=f"Paper with ID {paper_id} not found or could not be deleted")
         
         return {"message": f"Paper {paper_id} deleted successfully"}
     
     except HTTPException:
-        # Re-raise HTTP exceptions
         raise
-    
     except Exception as e:
         logger.error(f"Error deleting paper: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error deleting paper: {str(e)}")
