@@ -170,7 +170,6 @@ async def process_papers(papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                     chunk_size=DEFAULT_CHUNK_SIZE,
                     chunk_overlap=DEFAULT_CHUNK_OVERLAP
                 )
-                
                 logger.info(f"Split paper {paper_id} into {len(chunks)} chunks")
                 
                 # Process chunks in batches for efficiency
@@ -212,7 +211,6 @@ async def process_papers(papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             except Exception as e:
                 logger.error(f"Error processing paper {paper.get('id', 'unknown')}: {str(e)}", exc_info=True)
                 # Continue with other papers
-        
         logger.info(f"Processed {len(processed_papers)} papers")
         return processed_papers
         
@@ -273,23 +271,33 @@ async def get_context_for_query(query: str, paper_ids: List[str], top_k: int = 3
         query_embedding = model.encode(query).tolist()
         
         # Create filter for the specified papers
-        search_filter = Filter(
-            must=[
-                FieldCondition(
-                    key="paper_id",
-                    match=MatchValue(
-                        value=paper_ids
+        if len(paper_ids) == 1:
+            # If only one paper ID, use direct match
+            search_filter = Filter(
+                must=[
+                    FieldCondition(
+                        key="paper_id",
+                        match=MatchValue(value=paper_ids[0])
                     )
-                )
-            ]
-        )
+                ]
+            )
+        else:
+            # If multiple paper IDs, use should (logical OR) with multiple conditions
+            search_filter = Filter(
+                should=[
+                    FieldCondition(
+                        key="paper_id",
+                        match=MatchValue(value=paper_id)
+                    ) for paper_id in paper_ids
+                ]
+            )
         
         # Search for similar chunks
         search_result = await client.search(
             collection_name=collection_name,
             query_vector=query_embedding,
             limit=top_k,
-            filter=search_filter
+            query_filter=search_filter  # Changed from filter to query_filter
         )
         
         # Format the results

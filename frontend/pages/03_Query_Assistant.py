@@ -158,7 +158,7 @@ def display_chat_message(role, content, timestamp=None, sources=None):
     # Format markdown in the message content
     if role == "assistant" and isinstance(content, str):
         # Ensure code blocks are properly formatted
-        content = re.sub(r'``````', r'<pre><code>\1</code></pre>', content, flags=re.DOTALL)
+        content = re.sub(r'```(.*?)```', r'<pre><code>\1</code></pre>', content, flags=re.DOTALL)
         
         # Format bold text
         content = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', content)
@@ -260,7 +260,6 @@ if submit_button and user_question:
                     "timestamp": datetime.now().strftime("%I:%M %p"),
                     "sources": response.get("sources", [])
                 }
-                
                 st.session_state.chat_history.append(assistant_message)
             else:
                 error_message = {
