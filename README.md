@@ -69,7 +69,7 @@
 
 ### Video Demo
 
-[*Click to watch a demonstration of ResearchWebGraph in action*](docs/images/Demo_ResearchWebGraph.mov)
+[*Click to watch a demonstration of ResearchWebGraph in action*](https://drive.google.com/file/d/1Wa34el4getUQwoouBCecJbF06ahPOKuO/view?usp=sharing)
 ## Installation
 
 ### Prerequisites
