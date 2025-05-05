@@ -93,10 +93,12 @@ def fetch_papers(
         # Show spinner during API call
         with st.spinner("Fetching research papers..."):
             # Make request
+            groq_api_key = os.getenv("GROQ_API_KEY")
             response = requests.post(
-                url, 
+                url,
                 json=data,
-                timeout=60  # Longer timeout for paper fetching
+                headers={"groq-api-key": groq_api_key} if groq_api_key else {},
+                timeout=120
             )
         
         # Check for successful response
@@ -288,7 +290,13 @@ def query_papers(question: str, paper_ids: List[str]) -> Optional[Dict[str, Any]
         # Show spinner during query
         with st.spinner("Generating answer..."):
             # Make request
-            response = requests.post(url, json=data, timeout=120)  # Longer timeout for LLM processing
+            groq_api_key = os.getenv("GROQ_API_KEY")
+            response = requests.post(
+                url,
+                json=data,
+                headers={"groq-api-key": groq_api_key} if groq_api_key else {},
+                timeout=120
+            )
         
         # Check for successful response
         if response.status_code == 200:

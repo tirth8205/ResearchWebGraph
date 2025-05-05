@@ -7,7 +7,7 @@ from datetime import datetime
 import uuid
 
 # Import models and services
-from app.models.schemas import KnowledgeGraph, GraphVisualizationRequest, GraphVisualizationResponse
+from app.models.schemas import KnowledgeGraph, VisualizationRequest, VisualizationResponse
 from app.services.build_graph import build_knowledge_graph
 from app.services.visualize_graph import visualize_graph
 
@@ -132,8 +132,8 @@ async def get_knowledge_graph(graph_id: str):
         logger.error(f"Error retrieving knowledge graph: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving knowledge graph: {str(e)}")
 
-@router.post("/visualize", response_model=GraphVisualizationResponse)
-async def get_visualization(request: GraphVisualizationRequest):
+@router.post("/visualize", response_model=VisualizationResponse)
+async def get_visualization(request: VisualizationRequest):
     """
     Generate a visualization of a knowledge graph.
     

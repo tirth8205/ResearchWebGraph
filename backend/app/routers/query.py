@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 import httpx
 from pydantic import BaseModel
+from fastapi import Header
 
 # Import models and schemas
 from app.models.schemas import QueryRequest, QueryResponse
@@ -50,7 +51,7 @@ async def get_paper_context(query: str, paper_ids: List[str], top_k: int = 3) ->
         logger.error(f"Error retrieving context: {str(e)}", exc_info=True)
         raise e
 
-async def query_groq_api(messages: List[Dict[str, str]], max_tokens: int = 1000, temperature: float = 0.7) -> str:
+async def query_groq_api(messages: List[Dict[str, str]], max_tokens: int = 1000, temperature: float = 0.7, groq_api_key: Optional[str] = Header(None)) -> str:
     """
     Query the Groq API with conversation messages.
     
@@ -62,7 +63,7 @@ async def query_groq_api(messages: List[Dict[str, str]], max_tokens: int = 1000,
     Returns:
         Generated response text
     """
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = groq_api_key or os.getenv("GROQ_API_KEY")
     if not api_key:
         raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured")
     
