@@ -60,7 +60,7 @@
 
 *Ask questions and get comprehensive answers about your research papers*
 
-![Query Assistant](docs/images/UserQuery_1.png>
+![Query Assistant](docs/images/UserQuery_1.png)
 ### Upload Paper
 
 *Upload your own research papers or documents for analysis*
