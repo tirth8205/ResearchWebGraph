@@ -71,21 +71,13 @@ class PaperSourceAggregator:
         for source_name in valid_sources:
             fetcher = self.sources[source_name]
             
-            # Handle parameter name differences between fetchers
-            if source_name.lower() == "arxiv":
-                task = fetcher.fetch_papers(
-                    query=query,
-                    max_results=max_docs_per_source,  # ArXiv uses max_results
-                    categories=categories,
-                    date_from=date_from
-                )
-            else:
-                task = fetcher.fetch_papers(
-                    query=query,
-                    max_docs=max_docs_per_source,  # Others use max_docs
-                    categories=categories,
-                    date_from=date_from
-                )
+            # Use max_docs parameter for all fetchers
+            task = fetcher.fetch_papers(
+                query=query,
+                max_docs=max_docs_per_source,
+                categories=categories,
+                date_from=date_from
+            )
                 
             tasks.append(task)
             task_sources.append(source_name)

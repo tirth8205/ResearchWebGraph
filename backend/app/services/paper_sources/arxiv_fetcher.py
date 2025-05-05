@@ -69,10 +69,7 @@ class ArXivFetcher(PaperFetcher):
             return []
             
         # Build more advanced query if filters are provided
-        full_query = self._construct_query(query, date_from, categories)
-        
-        # Log the complete query for debugging
-        logger.info(f"Constructed full ArXiv query: '{full_query}' with max_docs={max_docs}")
+        full_query = self._construct_query(query, date_from, categories, max_docs)
         
         # Initialize with a small delay that will increase with each retry
         base_delay_seconds = 5.0  # Increased from 3.0 to handle API instability
@@ -191,7 +188,7 @@ class ArXivFetcher(PaperFetcher):
         
         return documents
 
-    def _construct_query(self, query: str, date_from: Optional[str] = None, categories: Optional[List[str]] = None) -> str:
+    def _construct_query(self, query: str, date_from: Optional[str] = None, categories: Optional[List[str]] = None, max_docs: int = 5) -> str:
         """
         Construct the full ArXiv query string with optional date and category filters.
         
@@ -199,6 +196,7 @@ class ArXivFetcher(PaperFetcher):
             query: The search query string
             date_from: Optional start date in YYYY-MM-DD format
             categories: Optional list of arXiv categories
+            max_docs: Maximum number of documents to retrieve (for logging)
             
         Returns:
             Formatted ArXiv query string
@@ -218,22 +216,22 @@ class ArXivFetcher(PaperFetcher):
                 # Parse provided date_from
                 date_from_dt = datetime.strptime(date_from, "%Y-%m-%d")
                 if date_from_dt > current_date:
-                    # If date_from is in the future, use a 5-year range ending today
-                    date_from = (current_date - timedelta(days=5*365)).strftime("%Y%m%d%H%M")
-                else:
-                    date_from = date_from_dt.strftime("%Y%m%d%H%M")
+                    logger.warning(f"Provided date_from '{date_from}' is in the future. Using 1-year range instead.")
+                    date_from_dt = current_date - timedelta(days=365)
+                date_from = date_from_dt.strftime("%Y%m%d%H%M")
             except ValueError:
-                logger.warning(f"Invalid date_from format: {date_from}. Using 5-year range.")
-                date_from = (current_date - timedelta(days=5*365)).strftime("%Y%m%d%H%M")
+                logger.warning(f"Invalid date_from format: '{date_from}'. Must be YYYY-MM-DD. Using 1-year range.")
+                date_from = (current_date - timedelta(days=365)).strftime("%Y%m%d%H%M")
         else:
-            # Default to 5 years ago
-            date_from = (current_date - timedelta(days=5*365)).strftime("%Y%m%d%H%M")
+            # Default to 1 year ago
+            date_from = (current_date - timedelta(days=365)).strftime("%Y%m%d%H%M")
         
         query_components.append(f"submittedDate:[{date_from} TO {end_date}]")
         
         # Handle categories
         if categories:
-            formatted_categories = [cat.strip().replace(".", "_") for cat in categories if cat.strip()]
+            # Fix: Convert underscores to periods
+            formatted_categories = [cat.strip().replace("_", ".") for cat in categories if cat.strip()]
             if formatted_categories:
                 category_query = " OR ".join(f"cat:{cat}" for cat in formatted_categories)
                 query_components.append(f"({category_query})")
@@ -241,5 +239,5 @@ class ArXivFetcher(PaperFetcher):
         # Combine components
         full_query = " AND ".join(query_components)
         
-        logger.info(f"Constructed full ArXiv query: '{full_query}' with max_docs={self.max_docs}")
+        logger.info(f"Constructed full ArXiv query: '{full_query}' with max_docs={max_docs}")
         return full_query
