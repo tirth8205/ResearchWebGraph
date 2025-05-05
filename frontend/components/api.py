@@ -335,7 +335,13 @@ def create_conversation(paper_ids: List[str]) -> Optional[str]:
         url = get_api_url("query/conversation")
         
         # Make request
-        response = requests.post(url, json=paper_ids, timeout=30)
+        groq_api_key = os.getenv("GROQ_API_KEY")
+        response = requests.post(
+            url, 
+            json=paper_ids, 
+            headers={"groq-api-key": groq_api_key} if groq_api_key else {},
+            timeout=30
+        )
         
         # Check for successful response
         if response.status_code == 200:

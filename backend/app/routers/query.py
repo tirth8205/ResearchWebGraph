@@ -51,7 +51,7 @@ async def get_paper_context(query: str, paper_ids: List[str], top_k: int = 3) ->
         logger.error(f"Error retrieving context: {str(e)}", exc_info=True)
         raise e
 
-async def query_groq_api(messages: List[Dict[str, str]], max_tokens: int = 1000, temperature: float = 0.7, groq_api_key: Optional[str] = Header(None)) -> str:
+async def query_groq_api(messages: List[Dict[str, str]], max_tokens: int = 1000, temperature: float = 0.7, groq_api_key: Optional[str] = None) -> str:
     """
     Query the Groq API with conversation messages.
     
@@ -59,6 +59,7 @@ async def query_groq_api(messages: List[Dict[str, str]], max_tokens: int = 1000,
         messages: List of message objects with role and content
         max_tokens: Maximum tokens to generate
         temperature: Controls randomness (0 to 1)
+        groq_api_key: Optional API key to override environment variable
         
     Returns:
         Generated response text
@@ -116,7 +117,7 @@ async def query_groq_api(messages: List[Dict[str, str]], max_tokens: int = 1000,
         raise HTTPException(status_code=500, detail=f"Error querying Groq API: {str(e)}")
 
 @router.post("/ask", response_model=QueryResponse)
-async def ask_question(request: QueryRequest):
+async def ask_question(request: QueryRequest, groq_api_key: Optional[str] = Header(None)):
     """
     Answer a question based on the content of selected papers.
     
@@ -179,7 +180,7 @@ QUESTION:
         ]
         
         # Generate answer using Groq API
-        answer = await query_groq_api(messages)
+        answer = await query_groq_api(messages, groq_api_key=groq_api_key)
         
         # Format sources for citation
         sources = []
@@ -211,7 +212,8 @@ QUESTION:
 
 @router.post("/conversation", response_model=Dict[str, Any])
 async def create_conversation(
-    paper_ids: List[str] = Body(..., description="List of paper IDs for the conversation")
+    paper_ids: List[str] = Body(..., description="List of paper IDs for the conversation"),
+    groq_api_key: Optional[str] = Header(None)
 ):
     """
     Create a new conversation for interacting with papers.
@@ -227,7 +229,8 @@ async def create_conversation(
             "paper_ids": paper_ids,
             "messages": [],
             "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat()
+            "updated_at": datetime.now().isoformat(),
+            "groq_api_key": groq_api_key
         }
         
         logger.info(f"Created conversation {conversation_id} with {len(paper_ids)} papers")
@@ -245,7 +248,8 @@ async def create_conversation(
 @router.post("/conversation/{conversation_id}/message", response_model=Dict[str, Any])
 async def add_message(
     conversation_id: str,
-    message: str = Body(..., embed=True, description="User's message or question")
+    message: str = Body(..., embed=True, description="User's message or question"),
+    groq_api_key: Optional[str] = Header(None)
 ):
     """
     Add a message to an existing conversation and get a response.
@@ -262,6 +266,10 @@ async def add_message(
         conversation = conversation_history[conversation_id]
         paper_ids = conversation["paper_ids"]
         messages = conversation["messages"]
+        stored_api_key = conversation.get("groq_api_key")
+        
+        # Use the provided API key or fall back to the stored one
+        api_key = groq_api_key or stored_api_key
         
         # Add user message to history
         messages.append({
@@ -292,7 +300,7 @@ async def add_message(
             }
         ]
         
-        # Add conversation history (limited to last 5 exchanges for context)
+        # Add conversation history (limited to last 10 exchanges for context)
         for msg in messages[-10:]:
             api_messages.append({
                 "role": msg["role"],
@@ -308,7 +316,7 @@ async def add_message(
             })
         
         # Generate answer
-        answer = await query_groq_api(api_messages)
+        answer = await query_groq_api(api_messages, groq_api_key=api_key)
         
         # Add assistant response to history
         messages.append({

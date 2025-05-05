@@ -147,7 +147,6 @@ def show_app_info():
         
         **Version:** 1.0.0
         """)
-        
         # Add link to documentation or GitHub repository
         st.markdown("[Documentation](https://github.com/yourusername/ResearchWebGraph)")
 
