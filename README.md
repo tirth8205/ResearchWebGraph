@@ -32,25 +32,44 @@
 - **Groq API**: Access to high-performance large language models like `llama-3.1-8b-instant` and `llama-3.3-70b-versatile`.
 
 
-## Screenshots \& Demos
+## Screenshots & Demos
+
+### Home Interface
+
+*Main interface of ResearchWebGraph*
+
+![Home Interface](docs/images/Home.png)
 
 ### Paper Search Interface
 
 *Search for academic papers with filters for date and categories*
 
+![Search Interface](docs/images/Search1.png)
+
 ### Knowledge Graph Visualization
 
 *Interactive knowledge graph showing relationships between research concepts*
+
+![Knowledge Graph 1](docs/images/KnowledgeGraph_1.png)
+![Knowledge Graph 2](docs/images/KnowledgeGraph_2.png)
+![Knowledge Graph 3](docs/images/KnowledgeGraph_3.png)
+![Knowledge Graph 4](docs/images/KnowledgeGraph_4.png)
+![Knowledge Graph 5](docs/images/KnowledgeGraph_5.png)
 
 ### Query Assistant
 
 *Ask questions and get comprehensive answers about your research papers*
 
+![Query Assistant](docs/images/UserQuery_1a>
+### Upload Paper
+
+*Upload your own research papers or documents for analysis*
+
+![Upload Paper](docs/images/UploadPaper.png)
+
 ### Video Demo
 
-[
-*Click to watch a demonstration of ResearchWebGraph in action*
-
+[*Click to watch a demonstration of ResearchWebGraph in action*](docs/images/Demo_ResearchWebGraph.mov)
 ## Installation
 
 ### Prerequisites
