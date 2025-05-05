@@ -6,6 +6,7 @@ import asyncio
 import random
 import re
 from typing import List, Optional, Dict, Any
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 from .base_fetcher import PaperFetcher
@@ -68,39 +69,7 @@ class ArXivFetcher(PaperFetcher):
             return []
             
         # Build more advanced query if filters are provided
-        full_query = query.strip()
-        
-        # Only apply category filter if categories are specifically selected
-        if categories and len(categories) > 0:
-            # Log which categories we're using
-            logger.info(f"Filtering by categories: {categories}")
-            
-            # Validate categories format to catch mistakes
-            valid_categories = []
-            for cat in categories:
-                if re.match(r"^[a-z]+(\.[A-Z]{2})?$", cat):
-                    valid_categories.append(cat)
-                else:
-                    logger.warning(f"Skipping potentially invalid category format: {cat}")
-            
-            if valid_categories:
-                category_filter = " OR ".join([f"cat:{cat}" for cat in valid_categories])
-                full_query = f"({query}) AND ({category_filter})"
-            else:
-                logger.warning("No valid categories after filtering, using query without category filters")
-        else:
-            logger.info(f"No categories specified, searching all of arXiv for: '{query}'")
-        
-        # Process date filter
-        if date_from:
-            # Validate date_from format
-            if not re.match(r"\d{4}-\d{2}-\d{2}", date_from):
-                logger.error(f"Invalid date_from format: {date_from}. Must be YYYY-MM-DD.")
-                return []
-                
-            # Convert from YYYY-MM-DD to YYYYMMDD for arXiv API
-            date_from_clean = date_from.replace("-", "")
-            full_query = f"({full_query}) AND submittedDate:[{date_from_clean}0000 TO 99990101000000]"
+        full_query = self._construct_query(query, date_from, categories)
         
         # Log the complete query for debugging
         logger.info(f"Constructed full ArXiv query: '{full_query}' with max_docs={max_docs}")
@@ -221,3 +190,56 @@ class ArXivFetcher(PaperFetcher):
                 time.sleep(retry_delay)
         
         return documents
+
+    def _construct_query(self, query: str, date_from: Optional[str] = None, categories: Optional[List[str]] = None) -> str:
+        """
+        Construct the full ArXiv query string with optional date and category filters.
+        
+        Args:
+            query: The search query string
+            date_from: Optional start date in YYYY-MM-DD format
+            categories: Optional list of arXiv categories
+            
+        Returns:
+            Formatted ArXiv query string
+        """
+        # Clean the query
+        query = query.strip().replace(" ", "+")
+        
+        # Initialize query components
+        query_components = [f"({query})"]
+        
+        # Handle date filter
+        current_date = datetime.now()
+        end_date = current_date.strftime("%Y%m%d%H%M")
+        
+        if date_from:
+            try:
+                # Parse provided date_from
+                date_from_dt = datetime.strptime(date_from, "%Y-%m-%d")
+                if date_from_dt > current_date:
+                    # If date_from is in the future, use a 5-year range ending today
+                    date_from = (current_date - timedelta(days=5*365)).strftime("%Y%m%d%H%M")
+                else:
+                    date_from = date_from_dt.strftime("%Y%m%d%H%M")
+            except ValueError:
+                logger.warning(f"Invalid date_from format: {date_from}. Using 5-year range.")
+                date_from = (current_date - timedelta(days=5*365)).strftime("%Y%m%d%H%M")
+        else:
+            # Default to 5 years ago
+            date_from = (current_date - timedelta(days=5*365)).strftime("%Y%m%d%H%M")
+        
+        query_components.append(f"submittedDate:[{date_from} TO {end_date}]")
+        
+        # Handle categories
+        if categories:
+            formatted_categories = [cat.strip().replace(".", "_") for cat in categories if cat.strip()]
+            if formatted_categories:
+                category_query = " OR ".join(f"cat:{cat}" for cat in formatted_categories)
+                query_components.append(f"({category_query})")
+        
+        # Combine components
+        full_query = " AND ".join(query_components)
+        
+        logger.info(f"Constructed full ArXiv query: '{full_query}' with max_docs={self.max_docs}")
+        return full_query

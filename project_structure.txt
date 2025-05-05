@@ -41,10 +41,15 @@
 │   │   ├── 01
 │   │   │   ├── 93d2d16683cd9df0c1b9d12c20108a591e4fb0
 │   │   │   └── d633b27e8ea9b17084fc911d0c8cc43a4170a9
+│   │   ├── 03
+│   │   │   └── 51576ee73bc761135bf20d968a7ca49c1c1fb7
 │   │   ├── 04
 │   │   │   └── b8113a25e4e62f225f8cfa037d6e7fe7c61054
 │   │   ├── 05
+│   │   │   ├── 6df57bb7f73da12edea3c09d88bc3ff790ec7c
 │   │   │   └── a050aba490142b33dca53f4b22c86323c8afae
+│   │   ├── 08
+│   │   │   └── 9e971f74effafd3fe3abc29a89cf82da30e35b
 │   │   ├── 09
 │   │   │   ├── a3acfa138db01dc50a688796b2861638c369ec
 │   │   │   └── d14d2f2366518f8d713ef4f7daf5f7fbb9e686
@@ -62,6 +67,8 @@
 │   │   │   └── f3be4dd3b5a2b5146f36630acbf7e99e490797
 │   │   ├── 13
 │   │   │   └── f20b64162e2165885ede80c051316a477127e4
+│   │   ├── 15
+│   │   │   └── 64c381698f52a3f081b067cc9b4de1e5972100
 │   │   ├── 16
 │   │   │   └── 23b700cbc92a6cb24b5e607e42ab51e8ef7a51
 │   │   ├── 18
@@ -80,6 +87,8 @@
 │   │   ├── 20
 │   │   │   ├── 3c358c95b8769fe0b5150ce04c9bc2bd932ac4
 │   │   │   └── 91e405742dd0fa6afa76fa2f92fff03cda958a
+│   │   ├── 21
+│   │   │   └── 3a1d6967215ed18f61b26f387480c029dc029c
 │   │   ├── 22
 │   │   │   └── 30c3f96acbb061e39338fc9a6fbf77c9445f22
 │   │   ├── 23
@@ -88,8 +97,11 @@
 │   │   │   └── f8093379d70549fd46c7130b3390cd814a96aa
 │   │   ├── 25
 │   │   │   └── a87199108d1b59e4b64fb4880203e9fe1abf7f
+│   │   ├── 26
+│   │   │   └── c0b76fd22a71b5f67c96399966caa61686cfd8
 │   │   ├── 27
 │   │   │   ├── 2df0f80bc17029100d2fa9202e6940a53916d5
+│   │   │   ├── 7f899c567b89620660c818d9cccdb6bbc384e4
 │   │   │   ├── 8b155e3e9f475f3d6608574e7bc05bf2c52c57
 │   │   │   └── c699d17f3d3c3280defdc08d26f1047779042a
 │   │   ├── 28
@@ -97,6 +109,8 @@
 │   │   │   └── ab353ba8133fd1fcedf05b8ca635728a68ca23
 │   │   ├── 29
 │   │   │   └── 37f0b527e3c1b685001578a095a7d8c5f0edd6
+│   │   ├── 2b
+│   │   │   └── cdf762a632f84b13a7091514135b7e4f69e93d
 │   │   ├── 2d
 │   │   │   └── 9efa9f58954add34c354e9b2d728d014043ec7
 │   │   ├── 30
@@ -104,7 +118,8 @@
 │   │   ├── 31
 │   │   │   └── fb1420a6876539fd10466f23f122e6306d600c
 │   │   ├── 32
-│   │   │   └── 25c536d4e9e35a41add41422fcfc360bbb17f8
+│   │   │   ├── 25c536d4e9e35a41add41422fcfc360bbb17f8
+│   │   │   └── dad566d702f1e1c45cff973d73f06c31c1b2fb
 │   │   ├── 34
 │   │   │   ├── 360cb2727e5f739987ef64baf12241fbb6ef2c
 │   │   │   └── e4331a32bb03d20f10d199c1323fa8b99f9d20
@@ -115,33 +130,45 @@
 │   │   │   ├── 01e4e8ef8c9d579ee10e1f9e2f65663b6bc8f5
 │   │   │   └── fdb74992eae6170d8a73e2f05a0fd872d37817
 │   │   ├── 38
-│   │   │   └── d10dcde4e575f0b18973b162b89f5e02e89e26
+│   │   │   ├── d10dcde4e575f0b18973b162b89f5e02e89e26
+│   │   │   └── dab565fb3e65dbc652cfc77af3565e74374c6a
 │   │   ├── 3a
 │   │   │   └── ea10ceff54950ae734b9ef85a024662457a727
 │   │   ├── 3b
 │   │   │   ├── 553acd206b49c3a8499967202451a2c6594e5e
+│   │   │   ├── 99dabaf5b34fbbdcb217fbc342d45d0871db95
 │   │   │   ├── d0236168b40a2fac695a6fdbcaa5f684beb1ad
 │   │   │   └── d83f0f6e975bba75afac6412da5ef999949a24
+│   │   ├── 3c
+│   │   │   └── 7c68c52f584750b79634cee6cb2e840f59385c
 │   │   ├── 42
 │   │   │   ├── 71440c300ff9d3c84363e5bac576194acabaa3
-│   │   │   └── ada3447a4a80b52615eed5aceb878b6c4d5d1a
+│   │   │   ├── ada3447a4a80b52615eed5aceb878b6c4d5d1a
+│   │   │   └── fa2b4da3a7637458ce630a309c00990912bad3
 │   │   ├── 43
 │   │   │   └── 24e490636f78a0001cc4d0a06213ba4393e482
+│   │   ├── 44
+│   │   │   └── 32e58cd1709f81d52b9588f34bf7096631eddc
 │   │   ├── 45
 │   │   │   └── 875a5536848cdae67819a2df7a0cbd4ee46f1a
 │   │   ├── 46
 │   │   │   ├── 0106170063a4f1bbafea6cf3606a539749f2ac
+│   │   │   ├── 2ab0d023813ec04f4b916bfe9d797b3d6381b1
 │   │   │   └── e13811af3118708956ca933b16757a3636cc44
 │   │   ├── 47
 │   │   │   └── eed8428c4d4dec6c1c7c697700aec550ef5462
+│   │   ├── 49
+│   │   │   └── 2aaea589e65f7f93c14d48e04a99a13161c8e0
 │   │   ├── 4d
 │   │   │   └── 86ccb0d016fd48c90d3f7e2ae04716264cfafa
 │   │   ├── 4e
-│   │   │   └── 31b43ab928ab6994af34d69abd9baa4787f54d
+│   │   │   ├── 31b43ab928ab6994af34d69abd9baa4787f54d
+│   │   │   └── 4f04426f985140e590ff5596c783b5ff2619d2
 │   │   ├── 50
 │   │   │   └── 56e6ea3a9a728cb9db2997d284bf55b93c9aab
 │   │   ├── 51
-│   │   │   └── 106d5d1a7b27c3aadc3817ead1e01eeeacaf83
+│   │   │   ├── 106d5d1a7b27c3aadc3817ead1e01eeeacaf83
+│   │   │   └── 475b8b4d9f09257d4dce3f6c3ebdc5529f57ca
 │   │   ├── 52
 │   │   │   ├── d83a837e46305c4ea8e926cfc27820e489c44c
 │   │   │   └── fbb23767b31d05a613ba89b44f717d05ac361b
@@ -157,6 +184,8 @@
 │   │   │   └── 2fa7f50ed0955c532e7603272289a433a1393f
 │   │   ├── 57
 │   │   │   └── 849e4d968d27bb072a616bbb619b12764b590f
+│   │   ├── 59
+│   │   │   └── 9a4fe72eb5fde40d45c4a4d1ca76ffd7f35bb8
 │   │   ├── 5a
 │   │   │   └── e6d3817f20f5590eb23ce39de2cff2b81563f2
 │   │   ├── 5b
@@ -173,7 +202,10 @@
 │   │   ├── 60
 │   │   │   └── e2ca35a403e04be2a0e8497a4894b0500a03ee
 │   │   ├── 61
-│   │   │   └── 01dd3bd54e4c23c7b6febdf26a67180a1e0a76
+│   │   │   ├── 01dd3bd54e4c23c7b6febdf26a67180a1e0a76
+│   │   │   └── 8da6454ac7e4510183c5cf0abdb7eaa92f4de9
+│   │   ├── 63
+│   │   │   └── 7456105d4f25f5427802722432854a09401636
 │   │   ├── 64
 │   │   │   └── 276519ac51e6310bf6f7c2ddb719294114f3ad
 │   │   ├── 65
@@ -181,15 +213,21 @@
 │   │   ├── 66
 │   │   │   └── fd6de0ff27a7028c2afdee0fb16133e056d16d
 │   │   ├── 69
+│   │   │   ├── 00ee7239239393c268fa04932813fd6c0cec79
 │   │   │   └── c8a8cc144d3233e7937c8769632fe7e10a8b2d
 │   │   ├── 6a
-│   │   │   └── 82dd5727c4e285d4c4ce90a9d80227540a0b43
+│   │   │   ├── 82dd5727c4e285d4c4ce90a9d80227540a0b43
+│   │   │   └── c7c5cee1a0d7e91836d91559e3306f714b40e3
 │   │   ├── 6b
-│   │   │   └── 598a244d8b7d2c58a75265d489802dd6527d96
+│   │   │   ├── 598a244d8b7d2c58a75265d489802dd6527d96
+│   │   │   └── a31a31e7d9d359591c8d3ec10fc9c867dd3841
 │   │   ├── 6c
+│   │   │   ├── 2a607e9be96d107b3214c63dc360939a1916fa
 │   │   │   └── 7a648777e9820d0a7c91962c79e6235e3b403d
 │   │   ├── 6d
 │   │   │   └── 0c7dac9e6c8416b4b6fe983780625285b4883a
+│   │   ├── 6e
+│   │   │   └── 37de1f1bbce5ac92880f573e259cb877c116bf
 │   │   ├── 6f
 │   │   │   └── d76134e8a44d69175e1eeda8dee94818faafeb
 │   │   ├── 72
@@ -201,15 +239,21 @@
 │   │   ├── 78
 │   │   │   ├── 31f7663f1ddb7dcb00bdaa7cd66938343f26af
 │   │   │   └── 63f99cc6db5d691d67470b3e2a4feffa92d4df
+│   │   ├── 7a
+│   │   │   └── 43cf0a18322f943e8424c0c8c2079dd65a6b2b
 │   │   ├── 7b
 │   │   │   └── cfd7bc0d9e5bee4ce91ee745b44aa1a6b88f1e
 │   │   ├── 7c
 │   │   │   ├── 12fde328575657d6efafa83266b0f4f504eb51
 │   │   │   └── 671e50dc51f27d63a073218e2edc5524ae4338
+│   │   ├── 81
+│   │   │   └── d0a311171f58b527e17f0ac2f0075d70774cc2
 │   │   ├── 84
 │   │   │   └── 01080dd82cb0daee33241e9752813fb2144225
 │   │   ├── 85
 │   │   │   └── e2cb86fdb967a7c038731e9c5231a2c6e12032
+│   │   ├── 86
+│   │   │   └── d4bd7cba160083662ea01ca24a8193462896d4
 │   │   ├── 87
 │   │   │   └── 2b2c742cc0faba98018296a96f04dc1339164b
 │   │   ├── 88
@@ -220,9 +264,12 @@
 │   │   ├── 8a
 │   │   │   └── b69e686e4373aeadc68a9eae0f90177d1ffeda
 │   │   ├── 8b
-│   │   │   └── 7a84c42f75fe4eae2e90332ddfc8aca8ac0b9c
+│   │   │   ├── 7a84c42f75fe4eae2e90332ddfc8aca8ac0b9c
+│   │   │   └── b304d94dafe48f45692946da3cbbfce6bce68e
 │   │   ├── 8d
 │   │   │   └── 3e4b92cfb7baa740a78d6d32c4fea48aed65cd
+│   │   ├── 8f
+│   │   │   └── 92f1d3173e51914b0d239fed765c5b97065ffe
 │   │   ├── 90
 │   │   │   └── b379d1aed68eb6c413644b368c8a00d99a494f
 │   │   ├── 94
@@ -233,7 +280,8 @@
 │   │   │   ├── 2067b4e471e0b825fd1b4ad1ad83e583c2bd93
 │   │   │   └── f129187238078ab21360a2e26c2a44f3376497
 │   │   ├── 97
-│   │   │   └── 6ccf5c6fb354487ee6039a0ff9041671ea9ed5
+│   │   │   ├── 6ccf5c6fb354487ee6039a0ff9041671ea9ed5
+│   │   │   └── c5b5360f0f8ef2e758d11050100a0489d18358
 │   │   ├── 98
 │   │   │   ├── 9f90393dd2b6d9500ad8a7d2f69a0c276b2b7b
 │   │   │   └── e6b813977920e697db18bd4e3839ebc05c438a
@@ -256,8 +304,10 @@
 │   │   ├── a0
 │   │   │   └── 689258ad3e3511284ec852924bfb519df2ccf3
 │   │   ├── a1
-│   │   │   └── 753e424ad0cd7d40938bf57ec62131c93a6863
+│   │   │   ├── 753e424ad0cd7d40938bf57ec62131c93a6863
+│   │   │   └── e52c0d6b058775d73fe175e56879899f11becd
 │   │   ├── a2
+│   │   │   ├── 1e80789082d0dd092051ef75b749d9301a7e79
 │   │   │   └── fa3a76402af56ee52b81758f8c856a392a1bd0
 │   │   ├── a3
 │   │   │   └── d375c4c61f04553ffe63c48c2c1636d1c2b322
@@ -266,8 +316,10 @@
 │   │   │   └── 8cd985a36258567ce299c93dc70caddd9c6851
 │   │   ├── a5
 │   │   │   ├── 4f9c2bc84f82f4e8c4c747727ada850719baf6
-│   │   │   └── 8b6a96ab97d708575f5f38a12f2ac6fb57b888
+│   │   │   ├── 8b6a96ab97d708575f5f38a12f2ac6fb57b888
+│   │   │   └── c9ef81ba3a1aed8bfed1a8acd3175304e6dab3
 │   │   ├── a6
+│   │   │   ├── 0c9bd0af0403e03c24ec41ac65ee4bef700916
 │   │   │   ├── 5b2704a6f5a3f1419ba83e6ceda3a968827bda
 │   │   │   └── b4ad929559f56f86e55e0d1a39435e6a95562a
 │   │   ├── a7
@@ -280,6 +332,7 @@
 │   │   ├── ae
 │   │   │   └── d6835713c01f171ce1318fc446a578c1524884
 │   │   ├── af
+│   │   │   ├── 171470b2f6923422a42b8437e950cc6378b1e0
 │   │   │   └── 49f6b50ea563e5247263fe92a6d96a1f037fc1
 │   │   ├── b1
 │   │   │   ├── 1e805e28cca412e04e2e8dee975922db3737b0
@@ -293,32 +346,44 @@
 │   │   │   ├── 1235cdf32d6b0b34e97edf308cfd0258709fc9
 │   │   │   ├── 2ce86e315940430d191a5c87cb7b86e341cb24
 │   │   │   └── b49eb63c1723c37e0bc0631e276f2ef9ba403c
+│   │   ├── b4
+│   │   │   └── aa2c787d92af7f16aabe620c0aab107c83e021
 │   │   ├── b6
 │   │   │   ├── 45e5e513292e48635645de48965a36f3a0d5f7
 │   │   │   └── 66a29db3359dcf54839c84b8ac20f09d59c2e0
 │   │   ├── b7
 │   │   │   └── cf35de4703887e010473c49e734f0cd74e2520
 │   │   ├── b8
-│   │   │   └── 0931a244afbe38946ce1fd23fda1577ff6225f
+│   │   │   ├── 0931a244afbe38946ce1fd23fda1577ff6225f
+│   │   │   └── 949915939dc9d4abc8cb8e3139747609960325
 │   │   ├── ba
 │   │   │   ├── 363a8e651cd6d4504b99bb68787390385a0fb9
 │   │   │   └── 4771a8b306e0557cce797d7d2fbb82d06eb469
 │   │   ├── bb
+│   │   │   ├── 443efa1778b572856f558319c72a1b82935d24
 │   │   │   └── c8f2b6389b18793fa85e572cc7a2b70c052ab4
 │   │   ├── bc
 │   │   │   ├── 7ca102cc3e883c7685ab5334ad894f86c4e0b0
 │   │   │   ├── c2c6676f146adba9ebf8cc3ffb38fb6330879c
 │   │   │   └── e8c9b54a01eb1dabd9bd39ec07030f4101ed06
 │   │   ├── bd
+│   │   │   ├── ad9339faf8c9e74f5e380788edad2b3c2035f9
 │   │   │   └── c523d049d9fbbeaa38d0debb1268fc9e19f8d4
 │   │   ├── bf
+│   │   │   ├── 7d8bd900d42b1368b8da645e5bdacd726b46a6
 │   │   │   └── eb0e00854f2d52cb31530d7bf2e9f2fe63f5ce
 │   │   ├── c0
 │   │   │   └── ff23f72f171b39c1fbaf7c41cd406dcbefaca1
+│   │   ├── c2
+│   │   │   └── 94d6fb66c763c66ce147b3fe426f5135d8b951
 │   │   ├── c4
+│   │   │   ├── 5f6d870272e496016a30863d7b213812efc011
 │   │   │   └── 6e6b49ab3d96def49343883a7d67ca2d9e26c4
 │   │   ├── c6
 │   │   │   └── afe38d4e2e7a6dc99c124a816b98bf2aabc0b3
+│   │   ├── ca
+│   │   │   ├── 12f0e7316e2402d38f108eaa9d76adb854c2a4
+│   │   │   └── 87bf85dc0164fd736d8392b08387e9379e3905
 │   │   ├── cb
 │   │   │   └── 766364580f703dae9f354504bae522e84679fa
 │   │   ├── cd
@@ -353,11 +418,14 @@
 │   │   │   ├── 58f3d3f56d1e71cc43ee8050dc7b2b3b3bb9f9
 │   │   │   └── 8913c893f70215d4c2dcf1b6dc708e98cc3cdf
 │   │   ├── de
-│   │   │   └── a75d15017b4108a112230e2e422241e9d75148
+│   │   │   ├── a75d15017b4108a112230e2e422241e9d75148
+│   │   │   └── b21634cc5340c3084842e6aa57a1492f3e2b00
 │   │   ├── e1
+│   │   │   ├── 4418da717e4dfbeab9924d578fefddc21523c9
 │   │   │   └── 4dc07ec4cf7027b313e7e4a2e88bb82ac44248
 │   │   ├── e3
 │   │   │   ├── 0e71f1b21cb28d604749139ea21d1ed175b315
+│   │   │   ├── 11b848ed6622d8b9fef5c40be5c2599ad1e066
 │   │   │   ├── 66d730f9520c042d30aa12ef72912c281e1980
 │   │   │   └── accf060e8ca7b2a7b6246a5010ef804d6eb61f
 │   │   ├── e4
@@ -382,11 +450,13 @@
 │   │   │   └── cd70fffda40a8041db05cbb2c8c7e1928a1f28
 │   │   ├── f0
 │   │   │   ├── 601ca52c98c4853995504beb1747c9b69ce250
-│   │   │   └── 710acf914dc5e2d17e10cbc3739787b364b7c0
+│   │   │   ├── 710acf914dc5e2d17e10cbc3739787b364b7c0
+│   │   │   └── a474f41fa59f29268f3ad3c0d67ad5dcad798c
 │   │   ├── f1
 │   │   │   └── 02b6875f2ce4e81c26d9412d74f8cf24578073
 │   │   ├── f2
-│   │   │   └── 32e878c61caa2cc4f0019b5143abacd35845c0
+│   │   │   ├── 32e878c61caa2cc4f0019b5143abacd35845c0
+│   │   │   └── dd0e9dea2b35174d899993454e357f074eea26
 │   │   ├── f5
 │   │   │   └── 28b090b4418a1e62e2f184d08ac43078ed0cf6
 │   │   ├── f6
@@ -401,7 +471,12 @@
 │   │   ├── f9
 │   │   │   └── 209bb2e9fd30c92f34462f5ef9163311948238
 │   │   ├── fb
+│   │   │   ├── 409d30d94d9c0e78f3597f7181c5cff92648d7
 │   │   │   └── 6cc17902dca722f05179a2b69a2c105667555c
+│   │   ├── fc
+│   │   │   ├── 5f9dd6ae42e607b2a5ca8e317a219287f7a752
+│   │   │   ├── b61ccc0ae91aec2a2effbece768367a919f1f1
+│   │   │   └── c839764304b9f78e597e83f90a097492ba25b1
 │   │   ├── fd
 │   │   │   ├── 0e2f1bb574d0f3a4c5222be1f4b86dd13af9cf
 │   │   │   └── 2db4d09418936b656d8008bab1b7549dfaf7e0
@@ -412,6 +487,7 @@
 │   │   └── pack
 │   │       ├── pack-fb58a6770e915555fe0d4cc0c63348d0883368d3.idx
 │   │       └── pack-fb58a6770e915555fe0d4cc0c63348d0883368d3.pack
+│   ├── ORIG_HEAD
 │   ├── packed-refs
 │   └── refs
 │       ├── heads
@@ -496,16 +572,31 @@
 │   │       │   └── pdf_utils.cpython-312.pyc
 │   │       ├── nlp_utils.py
 │   │       └── pdf_utils.py
+│   ├── lib
+│   │   ├── bindings
+│   │   │   └── utils.js
+│   │   ├── tom-select
+│   │   │   ├── tom-select.complete.min.js
+│   │   │   └── tom-select.css
+│   │   └── vis-9.1.2
+│   │       ├── vis-network.css
+│   │       └── vis-network.min.js
 │   ├── requirements.txt
 │   └── visualizations
+│       ├── graph_1746455921_f96cd72d.html
+│       ├── graph_1746456379_49ccd0ec.html
+│       └── graph_1746457915_a16abc18.html
 ├── frontend
 │   ├── .env
 │   ├── app.py
 │   ├── components
 │   │   ├── __init__.py
 │   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-311.pyc
 │   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── api.cpython-311.pyc
 │   │   │   ├── api.cpython-312.pyc
+│   │   │   ├── sidebar.cpython-311.pyc
 │   │   │   └── sidebar.cpython-312.pyc
 │   │   ├── api.py
 │   │   └── sidebar.py
@@ -540,10 +631,18 @@
 │   │       │   │   │   ├── LOCK
 │   │       │   │   │   ├── LOG
 │   │       │   │   │   ├── MANIFEST-000009
+│   │       │   │   │   ├── mutable_id_tracker.mappings
+│   │       │   │   │   ├── mutable_id_tracker.versions
 │   │       │   │   │   ├── OPTIONS-000007
 │   │       │   │   │   ├── OPTIONS-000011
 │   │       │   │   │   ├── payload_index
-│   │       │   │   │   │   ├── 000016.log
+│   │       │   │   │   │   ├── 000023.sst
+│   │       │   │   │   │   ├── 000027.sst
+│   │       │   │   │   │   ├── 000031.sst
+│   │       │   │   │   │   ├── 000032.log
+│   │       │   │   │   │   ├── 000034.sst
+│   │       │   │   │   │   ├── 000036.sst
+│   │       │   │   │   │   ├── 000037.sst
 │   │       │   │   │   │   ├── config.json
 │   │       │   │   │   │   ├── CURRENT
 │   │       │   │   │   │   ├── IDENTITY
@@ -564,6 +663,7 @@
 │   │       │   │   │   │   │   ├── flags_a.dat
 │   │       │   │   │   │   │   └── status.dat
 │   │       │   │   │   │   └── vectors
+│   │       │   │   │   │       ├── chunk_0.mmap
 │   │       │   │   │   │       ├── config.json
 │   │       │   │   │   │       └── status.dat
 │   │       │   │   │   └── version.info
@@ -574,10 +674,21 @@
 │   │       │   │   │   ├── LOCK
 │   │       │   │   │   ├── LOG
 │   │       │   │   │   ├── MANIFEST-000009
+│   │       │   │   │   ├── mutable_id_tracker.mappings
+│   │       │   │   │   ├── mutable_id_tracker.versions
 │   │       │   │   │   ├── OPTIONS-000007
 │   │       │   │   │   ├── OPTIONS-000011
 │   │       │   │   │   ├── payload_index
-│   │       │   │   │   │   ├── 000016.log
+│   │       │   │   │   │   ├── 000023.sst
+│   │       │   │   │   │   ├── 000027.sst
+│   │       │   │   │   │   ├── 000031.sst
+│   │       │   │   │   │   ├── 000034.sst
+│   │       │   │   │   │   ├── 000036.sst
+│   │       │   │   │   │   ├── 000037.sst
+│   │       │   │   │   │   ├── 000038.log
+│   │       │   │   │   │   ├── 000039.sst
+│   │       │   │   │   │   ├── 000040.sst
+│   │       │   │   │   │   ├── 000041.sst
 │   │       │   │   │   │   ├── config.json
 │   │       │   │   │   │   ├── CURRENT
 │   │       │   │   │   │   ├── IDENTITY
@@ -598,6 +709,7 @@
 │   │       │   │   │   │   │   ├── flags_a.dat
 │   │       │   │   │   │   │   └── status.dat
 │   │       │   │   │   │   └── vectors
+│   │       │   │   │   │       ├── chunk_0.mmap
 │   │       │   │   │   │       ├── config.json
 │   │       │   │   │   │       └── status.dat
 │   │       │   │   │   └── version.info
@@ -608,10 +720,18 @@
 │   │       │   │   │   ├── LOCK
 │   │       │   │   │   ├── LOG
 │   │       │   │   │   ├── MANIFEST-000009
+│   │       │   │   │   ├── mutable_id_tracker.mappings
+│   │       │   │   │   ├── mutable_id_tracker.versions
 │   │       │   │   │   ├── OPTIONS-000007
 │   │       │   │   │   ├── OPTIONS-000011
 │   │       │   │   │   ├── payload_index
-│   │       │   │   │   │   ├── 000016.log
+│   │       │   │   │   │   ├── 000023.sst
+│   │       │   │   │   │   ├── 000027.sst
+│   │       │   │   │   │   ├── 000031.sst
+│   │       │   │   │   │   ├── 000032.log
+│   │       │   │   │   │   ├── 000034.sst
+│   │       │   │   │   │   ├── 000036.sst
+│   │       │   │   │   │   ├── 000037.sst
 │   │       │   │   │   │   ├── config.json
 │   │       │   │   │   │   ├── CURRENT
 │   │       │   │   │   │   ├── IDENTITY
@@ -632,6 +752,7 @@
 │   │       │   │   │   │   │   ├── flags_a.dat
 │   │       │   │   │   │   │   └── status.dat
 │   │       │   │   │   │   └── vectors
+│   │       │   │   │   │       ├── chunk_0.mmap
 │   │       │   │   │   │       ├── config.json
 │   │       │   │   │   │       └── status.dat
 │   │       │   │   │   └── version.info
@@ -642,10 +763,18 @@
 │   │       │   │   │   ├── LOCK
 │   │       │   │   │   ├── LOG
 │   │       │   │   │   ├── MANIFEST-000009
+│   │       │   │   │   ├── mutable_id_tracker.mappings
+│   │       │   │   │   ├── mutable_id_tracker.versions
 │   │       │   │   │   ├── OPTIONS-000007
 │   │       │   │   │   ├── OPTIONS-000011
 │   │       │   │   │   ├── payload_index
-│   │       │   │   │   │   ├── 000016.log
+│   │       │   │   │   │   ├── 000023.sst
+│   │       │   │   │   │   ├── 000027.sst
+│   │       │   │   │   │   ├── 000031.sst
+│   │       │   │   │   │   ├── 000032.log
+│   │       │   │   │   │   ├── 000034.sst
+│   │       │   │   │   │   ├── 000036.sst
+│   │       │   │   │   │   ├── 000037.sst
 │   │       │   │   │   │   ├── config.json
 │   │       │   │   │   │   ├── CURRENT
 │   │       │   │   │   │   ├── IDENTITY
@@ -666,6 +795,7 @@
 │   │       │   │   │   │   │   ├── flags_a.dat
 │   │       │   │   │   │   │   └── status.dat
 │   │       │   │   │   │   └── vectors
+│   │       │   │   │   │       ├── chunk_0.mmap
 │   │       │   │   │   │       ├── config.json
 │   │       │   │   │   │       └── status.dat
 │   │       │   │   │   └── version.info
@@ -676,10 +806,17 @@
 │   │       │   │   │   ├── LOCK
 │   │       │   │   │   ├── LOG
 │   │       │   │   │   ├── MANIFEST-000009
+│   │       │   │   │   ├── mutable_id_tracker.mappings
+│   │       │   │   │   ├── mutable_id_tracker.versions
 │   │       │   │   │   ├── OPTIONS-000007
 │   │       │   │   │   ├── OPTIONS-000011
 │   │       │   │   │   ├── payload_index
-│   │       │   │   │   │   ├── 000016.log
+│   │       │   │   │   │   ├── 000023.sst
+│   │       │   │   │   │   ├── 000032.log
+│   │       │   │   │   │   ├── 000034.sst
+│   │       │   │   │   │   ├── 000036.sst
+│   │       │   │   │   │   ├── 000037.sst
+│   │       │   │   │   │   ├── 000038.sst
 │   │       │   │   │   │   ├── config.json
 │   │       │   │   │   │   ├── CURRENT
 │   │       │   │   │   │   ├── IDENTITY
@@ -700,6 +837,7 @@
 │   │       │   │   │   │   │   ├── flags_a.dat
 │   │       │   │   │   │   │   └── status.dat
 │   │       │   │   │   │   └── vectors
+│   │       │   │   │   │       ├── chunk_0.mmap
 │   │       │   │   │   │       ├── config.json
 │   │       │   │   │   │       └── status.dat
 │   │       │   │   │   └── version.info
@@ -710,10 +848,18 @@
 │   │       │   │   │   ├── LOCK
 │   │       │   │   │   ├── LOG
 │   │       │   │   │   ├── MANIFEST-000009
+│   │       │   │   │   ├── mutable_id_tracker.mappings
+│   │       │   │   │   ├── mutable_id_tracker.versions
 │   │       │   │   │   ├── OPTIONS-000007
 │   │       │   │   │   ├── OPTIONS-000011
 │   │       │   │   │   ├── payload_index
-│   │       │   │   │   │   ├── 000016.log
+│   │       │   │   │   │   ├── 000021.sst
+│   │       │   │   │   │   ├── 000025.sst
+│   │       │   │   │   │   ├── 000029.sst
+│   │       │   │   │   │   ├── 000032.log
+│   │       │   │   │   │   ├── 000033.sst
+│   │       │   │   │   │   ├── 000035.sst
+│   │       │   │   │   │   ├── 000037.sst
 │   │       │   │   │   │   ├── config.json
 │   │       │   │   │   │   ├── CURRENT
 │   │       │   │   │   │   ├── IDENTITY
@@ -734,6 +880,7 @@
 │   │       │   │   │   │   │   ├── flags_a.dat
 │   │       │   │   │   │   │   └── status.dat
 │   │       │   │   │   │   └── vectors
+│   │       │   │   │   │       ├── chunk_0.mmap
 │   │       │   │   │   │       ├── config.json
 │   │       │   │   │   │       └── status.dat
 │   │       │   │   │   └── version.info
@@ -744,10 +891,18 @@
 │   │       │   │   │   ├── LOCK
 │   │       │   │   │   ├── LOG
 │   │       │   │   │   ├── MANIFEST-000009
+│   │       │   │   │   ├── mutable_id_tracker.mappings
+│   │       │   │   │   ├── mutable_id_tracker.versions
 │   │       │   │   │   ├── OPTIONS-000007
 │   │       │   │   │   ├── OPTIONS-000011
 │   │       │   │   │   ├── payload_index
-│   │       │   │   │   │   ├── 000016.log
+│   │       │   │   │   │   ├── 000023.sst
+│   │       │   │   │   │   ├── 000027.sst
+│   │       │   │   │   │   ├── 000031.sst
+│   │       │   │   │   │   ├── 000032.log
+│   │       │   │   │   │   ├── 000034.sst
+│   │       │   │   │   │   ├── 000036.sst
+│   │       │   │   │   │   ├── 000037.sst
 │   │       │   │   │   │   ├── config.json
 │   │       │   │   │   │   ├── CURRENT
 │   │       │   │   │   │   ├── IDENTITY
@@ -768,6 +923,7 @@
 │   │       │   │   │   │   │   ├── flags_a.dat
 │   │       │   │   │   │   │   └── status.dat
 │   │       │   │   │   │   └── vectors
+│   │       │   │   │   │       ├── chunk_0.mmap
 │   │       │   │   │   │       ├── config.json
 │   │       │   │   │   │       └── status.dat
 │   │       │   │   │   └── version.info
@@ -778,10 +934,22 @@
 │   │       │   │       ├── LOCK
 │   │       │   │       ├── LOG
 │   │       │   │       ├── MANIFEST-000009
+│   │       │   │       ├── mutable_id_tracker.mappings
+│   │       │   │       ├── mutable_id_tracker.versions
 │   │       │   │       ├── OPTIONS-000007
 │   │       │   │       ├── OPTIONS-000011
 │   │       │   │       ├── payload_index
-│   │       │   │       │   ├── 000016.log
+│   │       │   │       │   ├── 000021.sst
+│   │       │   │       │   ├── 000022.sst
+│   │       │   │       │   ├── 000025.sst
+│   │       │   │       │   ├── 000026.sst
+│   │       │   │       │   ├── 000029.sst
+│   │       │   │       │   ├── 000030.sst
+│   │       │   │       │   ├── 000032.log
+│   │       │   │       │   ├── 000033.sst
+│   │       │   │       │   ├── 000034.sst
+│   │       │   │       │   ├── 000035.sst
+│   │       │   │       │   ├── 000036.sst
 │   │       │   │       │   ├── config.json
 │   │       │   │       │   ├── CURRENT
 │   │       │   │       │   ├── IDENTITY
@@ -802,6 +970,7 @@
 │   │       │   │       │   │   ├── flags_a.dat
 │   │       │   │       │   │   └── status.dat
 │   │       │   │       │   └── vectors
+│   │       │   │       │       ├── chunk_0.mmap
 │   │       │   │       │       ├── config.json
 │   │       │   │       │       └── status.dat
 │   │       │   │       └── version.info
@@ -60635,4 +60804,4 @@
 └── visualizations
     └── knowledge_graph_1744467610.html
 
-6328 directories, 54308 files
+6352 directories, 54453 files

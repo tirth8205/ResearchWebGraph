@@ -373,7 +373,13 @@ def send_message(conversation_id: str, message: str) -> Optional[Dict[str, Any]]
         # Show spinner during processing
         with st.spinner("Generating response..."):
             # Make request
-            response = requests.post(url, json=data, timeout=120)
+            groq_api_key = os.getenv("GROQ_API_KEY")
+            response = requests.post(
+                url,
+                json=data,
+                headers={"groq-api-key": groq_api_key} if groq_api_key else {},
+                timeout=120
+            )
         
         # Check for successful response
         if response.status_code == 200:
@@ -432,11 +438,6 @@ def change_page(page_name: str) -> None:
     Args:
         page_name: Name of the page to navigate to
     """
-    # Get the base URL of the current page
-    if not page_name.startswith("pages/"):
-        page_name = f"pages/{page_name}"
-    
-    # Use the newer st.query_params to set the page parameter
-    st.query_params["page"] = page_name
+    st.experimental_set_query_params(page=page_name)
     time.sleep(0.1)  # Small delay to allow query params to propagate
-    st.rerun()  # Use st.rerun() instead of experimental_rerun()
+    st.experimental_rerun()  # Use experimental_rerun for Streamlit 1.25.0

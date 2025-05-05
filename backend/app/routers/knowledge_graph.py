@@ -158,8 +158,9 @@ async def get_visualization(request: VisualizationRequest):
         
         logger.info(f"Generated visualization for knowledge graph {graph_id}")
         
-        return GraphVisualizationResponse(
+        return VisualizationResponse(
             html_content=html_content,
+            title=request.title,
             graph_id=graph_id
         )
     

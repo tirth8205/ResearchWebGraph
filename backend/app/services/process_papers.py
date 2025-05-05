@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 import asyncio
 import uuid
 from typing import List, Dict, Any, Optional, Tuple
@@ -185,7 +185,7 @@ async def process_papers(papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                     points = []
                     for j, (chunk, embedding) in enumerate(zip(batch, embeddings)):
                         chunk_index = i + j
-                        point_id = f"{paper_id}_chunk_{chunk_index}"
+                        point_id = str(uuid.uuid4())  # Generate UUID for each chunk
                         
                         points.append(PointStruct(
                             id=point_id,
