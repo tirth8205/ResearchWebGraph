@@ -444,23 +444,22 @@ def change_page(page_name: str) -> None:
     Args:
         page_name: Name of the page to navigate to
     """
-    # Extract the base name without numbering prefix
-    if page_name.startswith("01_"):
-        base_name = "Papers"
-    elif page_name.startswith("02_"):
-        base_name = "Knowledge_Graph"
-    elif page_name.startswith("03_"):
-        base_name = "Query_Assistant"
-    else:
-        base_name = page_name
-        
-    # Set the page in URL path and as query parameter
-    st.experimental_set_query_params(page=page_name)
+    # Map page files to proper Streamlit URL routes
+    page_routes = {
+        "01_Papers": "Papers",
+        "02_Knowledge_Graph": "Knowledge_Graph", 
+        "03_Query_Assistant": "Query_Assistant",
+        "Home": ""  # Root path for home
+    }
     
-    # This creates a JavaScript command to navigate to the correct URL
+    # Get the correct route
+    route = page_routes.get(page_name, page_name)
+    
+    # Use JavaScript to navigate to the correct URL without the query parameter
+    # This ensures the page loads properly with sidebar navigation intact
     js = f"""
     <script>
-        window.parent.location.href = "/{base_name}?page={page_name}";
+        window.parent.location.href = "/{route}";
     </script>
     """
     st.markdown(js, unsafe_allow_html=True)
