@@ -22,7 +22,7 @@ class PaperSourceAggregator:
     
     def register_source(self, fetcher: PaperFetcher):
         """Register a paper source."""
-        self.sources[fetcher.source_name] = fetcher
+        self.sources[fetcher.source_name.lower()] = fetcher
         logger.info(f"Registered paper source: {fetcher.source_name}")
     
     async def fetch_papers(
@@ -46,20 +46,29 @@ class PaperSourceAggregator:
         Returns:
             Combined list of papers from all sources
         """
+        if not query or query.strip() == "":
+            logger.warning("Empty query provided to fetch_papers")
+            return []
+            
+        # If no sources specified, use all available sources
         if not sources:
-            # If no sources specified, use all available sources
             sources = list(self.sources.keys())
         
-        # Limit to available sources
-        sources = [s for s in sources if s in self.sources]
+        # Make source names case-insensitive for better matching
+        sources = [s.lower() for s in sources if s]
         
-        if not sources:
-            logger.warning("No valid paper sources specified")
-            return []
+        # Limit to available sources
+        valid_sources = [s for s in sources if s in self.sources]
+        
+        if not valid_sources:
+            logger.warning(f"No valid paper sources specified. Available sources: {list(self.sources.keys())}")
+            # Default to all sources if none specified are valid
+            valid_sources = list(self.sources.keys())
         
         # Create fetch tasks for each source
         tasks = []
-        for source_name in sources:
+        task_sources = []
+        for source_name in valid_sources:
             fetcher = self.sources[source_name]
             task = fetcher.fetch_papers(
                 query=query,
@@ -68,17 +77,37 @@ class PaperSourceAggregator:
                 date_from=date_from
             )
             tasks.append(task)
+            task_sources.append(source_name)
         
         # Run all fetch tasks concurrently
         results = await asyncio.gather(*tasks, return_exceptions=True)
         
         # Combine results, handling any exceptions
         all_papers = []
-        for source_name, result in zip(sources, results):
+        successful_sources = 0
+        
+        for source_name, result in zip(task_sources, results):
             if isinstance(result, Exception):
                 logger.error(f"Error fetching from {source_name}: {str(result)}")
             else:
                 all_papers.extend(result)
+                successful_sources += 1
                 logger.info(f"Fetched {len(result)} papers from {source_name}")
         
+        # Log summary
+        if not all_papers:
+            if successful_sources == 0:
+                logger.warning("All paper sources failed to return results")
+            else:
+                logger.warning("No papers found matching the query criteria")
+        
         return all_papers
+    
+    def get_available_sources(self) -> List[str]:
+        """
+        Get a list of available paper sources.
+        
+        Returns:
+            List of source names
+        """
+        return list(self.sources.keys())

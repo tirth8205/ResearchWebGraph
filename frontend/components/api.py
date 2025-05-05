@@ -444,6 +444,23 @@ def change_page(page_name: str) -> None:
     Args:
         page_name: Name of the page to navigate to
     """
+    # Extract the base name without numbering prefix
+    if page_name.startswith("01_"):
+        base_name = "Papers"
+    elif page_name.startswith("02_"):
+        base_name = "Knowledge_Graph"
+    elif page_name.startswith("03_"):
+        base_name = "Query_Assistant"
+    else:
+        base_name = page_name
+        
+    # Set the page in URL path and as query parameter
     st.experimental_set_query_params(page=page_name)
-    time.sleep(0.1)  # Small delay to allow query params to propagate
-    st.experimental_rerun()  # Use experimental_rerun for Streamlit 1.25.0
+    
+    # This creates a JavaScript command to navigate to the correct URL
+    js = f"""
+    <script>
+        window.parent.location.href = "/{base_name}?page={page_name}";
+    </script>
+    """
+    st.markdown(js, unsafe_allow_html=True)
