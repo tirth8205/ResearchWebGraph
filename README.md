@@ -1,4 +1,4 @@
-# ResearchWebGraph
+# ResearchWebGraph – AI-Powered Research Assistant
 
 **ResearchWebGraph** is an AI-powered research assistant that helps you explore and understand academic papers. It combines advanced technologies like knowledge graphs, vector search, and large language models (LLMs) to provide insights into research topics.
 
